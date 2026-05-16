@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Villa Coco — Santa Catalina, Panama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@100;300;400&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════════════════
+   RESET & TOKENS
+══════════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --ink:   #1c1c1a;
+  --bark:  #2b2420;
+  --sand:  #f2ede4;
+  --cream: #faf8f3;
+  --mist:  #e8e2d8;
+  --gold:  #b8965a;
+  --ocean: #1e3a3f;
+  --foam:  #c8d8d4;
+  --palm:  #2d4a30;
+  --dusk:  #6b5c4e;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans:  'Lato', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+img { display: block; width: 100%; height: 100%; object-fit: cover; }
+a   { text-decoration: none; color: inherit; }
+
+/* ══════════════════════════════════════════════════
+   CUSTOM CURSOR (desktop only)
+══════════════════════════════════════════════════ */
+#cur, #cur-ring {
+  position: fixed; top: 0; left: 0; pointer-events: none;
+  border-radius: 50%; z-index: 9999;
+}
+#cur      { width:10px; height:10px; background:var(--gold); transform:translate(-50%,-50%); }
+#cur-ring { width:36px; height:36px; border:1px solid rgba(184,150,90,.45); transform:translate(-50%,-50%); transition:width .3s, height .3s; }
+
+/* ══════════════════════════════════════════════════
+   NAV
+══════════════════════════════════════════════════ */
+#nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  height: 64px; padding: 0 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .4s;
+}
+#nav.scrolled { background: rgba(28,28,26,.94); backdrop-filter: blur(10px); }
+
+.nav-logo {
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 400;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--sand);
+  position: relative; z-index: 102;
+}
+.nav-links { display:flex; gap:32px; list-style:none; position:absolute; left:50%; transform:translateX(-50%); }
+.nav-links a {
+  font-size: .6rem; font-weight: 300; letter-spacing: .2em;
+  text-transform: uppercase; color: rgba(242,237,228,.72); transition: color .25s;
+}
+.nav-links a:hover { color: var(--gold); }
+.nav-right { display:flex; align-items:center; gap:14px; position:relative; z-index:102; }
+.nav-book {
+  font-size: .58rem; font-weight: 400; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--ink); background: var(--gold);
+  padding: 8px 20px; transition: background .3s;
+}
+.nav-book:hover { background: var(--sand); }
+
+/* Hamburger */
+.burger {
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; background: none; border: none; cursor: pointer;
+  width: 32px; height: 32px; padding: 0;
+}
+.burger span {
+  display: block; width: 20px; height: 1.5px; background: var(--sand);
+  transition: transform .3s, opacity .3s; transform-origin: center;
+}
+.burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* Drawer */
+#drawer {
+  position: fixed; inset: 0; z-index: 101;
+  background: rgba(28,28,26,.97); backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  opacity: 0; pointer-events: none; transition: opacity .35s;
+}
+#drawer.open { opacity: 1; pointer-events: auto; }
+#drawer ul { list-style: none; text-align: center; width: 100%; padding: 0 40px; }
+#drawer li { border-bottom: 1px solid rgba(255,255,255,.07); }
+#drawer li:first-child { border-top: 1px solid rgba(255,255,255,.07); }
+#drawer a {
+  font-family: var(--serif); font-size: 2rem; font-weight: 400;
+  color: rgba(242,237,228,.75); display: block; padding: 18px 0;
+  transition: color .25s;
+}
+#drawer a:hover { color: var(--gold); }
+.drawer-book {
+  margin-top: 36px; font-size: .62rem; font-weight: 400;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink); background: var(--gold); padding: 13px 32px;
+  display: inline-block;
+}
+
+/* ══════════════════════════════════════════════════
+   FLOATING BUTTONS
+══════════════════════════════════════════════════ */
+.floats {
+  position: fixed; bottom: 28px; right: 28px; z-index: 99;
+  display: flex; flex-direction: column; gap: 10px; align-items: center;
+}
+.float-btn {
+  width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 18px rgba(0,0,0,.22); transition: transform .3s, box-shadow .3s;
+}
+.float-btn:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(0,0,0,.3); }
+.float-wa { background: #25d366; }
+.float-ig {
+  background: radial-gradient(circle at 30% 107%,
+    #fdf497 0%, #fdf497 5%,
+    #fd5949 45%, #d6249f 60%,
+    #285aeb 90%);
+}
+.float-btn svg { width: 22px; height: 22px; fill: white; }
+
+@media (max-width: 640px) {
+  .floats { bottom: 18px; right: 18px; gap: 8px; }
+  .float-btn { width: 44px; height: 44px; }
+  .float-btn svg { width: 20px; height: 20px; }
+}
+
+/* ══════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════ */
+.label {
+  display: block; font-size: .58rem; font-weight: 400;
+  letter-spacing: .32em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 18px;
+}
+.h2 {
+  font-family: var(--serif); font-size: clamp(30px,4vw,54px);
+  font-weight: 400; line-height: 1.1; letter-spacing: -.01em;
+}
+.h2 i { font-style: italic; }
+.body { font-size: .84rem; font-weight: 300; line-height: 1.95; letter-spacing: .02em; color: #666; }
+
+/* Reveal */
+.rv  { opacity:0; transform:translateY(28px); transition:opacity .85s ease, transform .85s ease; }
+.rvl { opacity:0; transform:translateX(-24px); transition:opacity .85s ease, transform .85s ease; }
+.rv.in, .rvl.in { opacity:1; transform:none; }
+.d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s} .d4{transition-delay:.4s}
+
+/* Buttons */
+.btn-gold {
+  display: inline-block; font-size: .6rem; font-weight: 400;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink); background: var(--gold); padding: 12px 28px;
+  transition: background .3s, transform .2s;
+}
+.btn-gold:hover { background: var(--sand); transform: translateY(-2px); }
+.btn-ghost {
+  display: inline-block; font-size: .6rem; font-weight: 300;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: rgba(242,237,228,.75); border-bottom: 1px solid rgba(242,237,228,.3);
+  padding-bottom: 2px; transition: color .3s, border-color .3s;
+}
+.btn-ghost:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ══════════════════════════════════════════════════
+   HERO
+══════════════════════════════════════════════════ */
+.hero {
+  height: 100vh; min-height: 600px; position: relative;
+  overflow: hidden; display: flex; align-items: flex-end;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: url('https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1920&q=85') center/cover;
+  transform: scale(1.06);
+  animation: heroZoom 14s cubic-bezier(.25,.46,.45,.94) forwards;
+}
+@keyframes heroZoom { from{transform:scale(1.06)} to{transform:scale(1)} }
+.hero-fade {
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(to top,   rgba(28,28,26,.95) 0%, rgba(28,28,26,.5) 40%, transparent 68%),
+    linear-gradient(to right, rgba(28,28,26,.70) 0%, rgba(28,28,26,.2) 55%, transparent 100%),
+    linear-gradient(to bottom,rgba(28,28,26,.45) 0%, transparent 25%);
+}
+.hero-grain {
+  position: absolute; inset: 0; z-index: 2; opacity: .3; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hero-content {
+  position: relative; z-index: 3; padding: 0 72px 88px; max-width: 860px;
+}
+.hero-loc {
+  font-size: .58rem; font-weight: 300; letter-spacing: .34em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+  opacity: 0; animation: fadeUp .9s .3s ease forwards;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(28,28,26,.42);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 7px 14px;
+  border-left: 2px solid rgba(184,150,90,.5);
+}
+.hero-title {
+  font-family: var(--serif); font-size: clamp(50px,8.5vw,114px);
+  font-weight: 400; line-height: .93; color: var(--sand);
+  letter-spacing: -.01em; margin-bottom: 28px;
+  opacity: 0; animation: fadeUp 1s .5s ease forwards;
+  text-shadow: 0 2px 20px rgba(0,0,0,.55), 0 1px 4px rgba(0,0,0,.4);
+}
+.hero-title i { font-style: italic; color: rgba(242,237,228,.75); }
+.hero-sub {
+  font-size: .82rem; font-weight: 300; line-height: 1.85;
+  color: rgba(242,237,228,.9); max-width: 370px; margin-bottom: 40px;
+  opacity: 0; animation: fadeUp 1s .75s ease forwards;
+  /* pill backdrop — always readable */
+  background: rgba(28,28,26,.42);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 14px 18px;
+  border-left: 2px solid rgba(184,150,90,.5);
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 28px;
+  opacity: 0; animation: fadeUp 1s .95s ease forwards;
+}
+.hero-scroll {
+  position: absolute; right: 52px; bottom: 48px; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  opacity: 0; animation: fadeIn 1s 1.6s ease forwards;
+}
+.hero-scroll span {
+  writing-mode: vertical-rl; font-size: .52rem; letter-spacing: .25em;
+  text-transform: uppercase; color: rgba(242,237,228,.32); font-weight: 300;
+}
+.scroll-line {
+  width: 1px; height: 52px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:none} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+/* ══════════════════════════════════════════════════
+   MARQUEE
+══════════════════════════════════════════════════ */
+.marquee-wrap {
+  background: var(--ocean); overflow: hidden;
+  padding: 9px 0; border-top: 1px solid rgba(255,255,255,.05);
+}
+.marquee-track {
+  display: flex; width: max-content;
+  animation: marquee 24s linear infinite;
+}
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.marquee-item {
+  font-size: .5rem; font-weight: 300; letter-spacing: .26em;
+  text-transform: uppercase; color: rgba(200,216,212,.38); padding: 0 28px;
+  white-space: nowrap;
+}
+.marquee-dot { color: var(--gold); opacity: .5; }
+
+/* ══════════════════════════════════════════════════
+   STORY / INTRO
+══════════════════════════════════════════════════ */
+.intro { display: grid; grid-template-columns: 1fr 1fr; min-height: 86vh; }
+.intro-img { position: relative; overflow: hidden; min-height: 480px; }
+.intro-img img { transition: transform .9s ease; }
+.intro-img:hover img { transform: scale(1.04); }
+.intro-img-tag {
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 36px 32px 28px;
+  background: linear-gradient(to top, rgba(28,28,26,.65), transparent);
+  font-size: .58rem; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(242,237,228,.5); font-weight: 300;
+}
+.intro-text {
+  background: var(--sand); padding: 80px 68px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.intro-text .h2 { color: var(--bark); margin-bottom: 24px; }
+.intro-origin {
+  margin-top: 32px; display: flex; align-items: center; gap: 14px;
+  font-size: .62rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ocean); font-weight: 300;
+}
+.intro-origin::before { content:''; width:36px; height:1px; background:var(--gold); flex-shrink:0; }
+.founders { margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap; }
+.founder-chip {
+  background: var(--cream); border: 1px solid var(--mist);
+  padding: 10px 16px; font-size: .62rem; font-weight: 300;
+  letter-spacing: .1em; color: var(--dusk);
+}
+.founder-chip strong {
+  display: block; font-weight: 400; color: var(--bark);
+  font-size: .76rem; margin-bottom: 2px;
+}
+
+/* ══════════════════════════════════════════════════
+   NUMBERS
+══════════════════════════════════════════════════ */
+.numbers { background: var(--ocean); display: grid; grid-template-columns: repeat(4,1fr); }
+.num-item {
+  padding: 60px 44px; border-right: 1px solid rgba(255,255,255,.07);
+  position: relative; overflow: hidden; transition: background .4s;
+}
+.num-item:last-child { border-right: none; }
+.num-item:hover { background: rgba(255,255,255,.04); }
+.num-item::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform .4s;
+}
+.num-item:hover::after { transform:scaleX(1); }
+.num-big {
+  font-family: var(--serif); font-size: clamp(48px,6vw,76px);
+  font-weight: 400; color: var(--sand); line-height: 1; margin-bottom: 8px; display: block;
+}
+.num-lbl {
+  font-size: .56rem; font-weight: 300; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--foam); opacity: .48; display: block;
+}
+
+/* ══════════════════════════════════════════════════
+   ROOMS
+══════════════════════════════════════════════════ */
+.rooms-sec { padding: 96px 72px; background: var(--cream); }
+.rooms-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 52px;
+}
+.rooms-head .h2 { color: var(--bark); }
+.rooms-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-template-rows: 420px 280px;
+  gap: 10px;
+}
+.room-card { position: relative; overflow: hidden; background: var(--mist); }
+.room-card:first-child { grid-row: 1/3; }
+.room-card img { transition: transform .8s cubic-bezier(.25,.46,.45,.94); }
+.room-card:hover img { transform: scale(1.06); }
+
+/* Hover overlay */
+.room-over {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(28,28,26,.9) 0%, transparent 52%);
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 26px;
+  opacity: 0; transition: opacity .4s;
+}
+.room-card:hover .room-over { opacity: 1; }
+.room-over-tag { font-size:.52rem; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:5px; font-weight:300; }
+.room-over-name { font-family:var(--serif); font-size:1.25rem; color:var(--sand); margin-bottom:8px; }
+.room-over-feat { font-size:.7rem; font-weight:300; color:rgba(242,237,228,.7); line-height:1.6; margin-bottom:14px; }
+.room-over-cta  { font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); border-bottom:1px solid var(--gold); padding-bottom:2px; width:fit-content; }
+
+/* Static name (always visible, fades on hover) */
+.room-lbl {
+  position: absolute; bottom: 18px; left: 22px;
+  font-family: var(--serif); font-size: 1.05rem; color: var(--sand);
+  font-weight: 400; transition: opacity .4s;
+  text-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.room-card:hover .room-lbl { opacity: 0; }
+
+/* ══════════════════════════════════════════════════
+   EXPERIENCES
+══════════════════════════════════════════════════ */
+.exp-sec { background: var(--bark); }
+
+/* Desktop two-column layout */
+.exp-desktop { display: grid; grid-template-columns: 340px 1fr; min-height: 600px; }
+.exp-left {
+  padding: 80px 56px; border-right: 1px solid rgba(255,255,255,.07);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.exp-left .h2 { color: var(--sand); margin-bottom: 20px; }
+.exp-left .body { color: rgba(242,237,228,.45); margin-bottom: 44px; }
+.exp-tabs { display: flex; flex-direction: column; }
+.exp-tab {
+  padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,.07);
+  font-size: .65rem; font-weight: 300; letter-spacing: .16em;
+  text-transform: uppercase; color: rgba(242,237,228,.38);
+  cursor: pointer; transition: color .3s;
+  display: flex; align-items: center; gap: 14px;
+}
+.exp-tab::before { content:''; width:24px; height:1px; background:currentColor; transition:width .3s; }
+.exp-tab:hover, .exp-tab.on { color: var(--gold); }
+.exp-tab.on::before { width: 42px; }
+.exp-right { position: relative; overflow: hidden; }
+.exp-panel {
+  position: absolute; inset: 0; opacity: 0; pointer-events: none;
+  transition: opacity .55s ease; display: flex; flex-direction: column; justify-content: flex-end;
+}
+.exp-panel.on { opacity: 1; pointer-events: auto; }
+.exp-panel > img { position: absolute; inset: 0; }
+.exp-panel-info {
+  position: relative; z-index: 2;
+  background: linear-gradient(to top, rgba(28,28,26,.9) 0%, transparent 60%);
+  padding: 44px 52px;
+}
+.exp-panel-title { font-family:var(--serif); font-size:1.9rem; color:var(--sand); margin-bottom:10px; }
+.exp-panel-desc  { font-size:.78rem; font-weight:300; line-height:1.8; color:rgba(242,237,228,.62); max-width:460px; }
+
+/* Mobile accordion — hidden on desktop */
+.exp-mobile { display: none; padding: 0 24px 40px; }
+.acc-item { border-bottom: 1px solid rgba(255,255,255,.08); }
+.acc-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0; cursor: pointer;
+  font-size: .68rem; font-weight: 300; letter-spacing: .16em;
+  text-transform: uppercase; color: rgba(242,237,228,.45); transition: color .25s;
+}
+.acc-head.on { color: var(--gold); }
+.acc-arrow {
+  font-size: .9rem; color: rgba(242,237,228,.3);
+  transition: transform .3s, color .3s; flex-shrink: 0;
+}
+.acc-head.on .acc-arrow { transform: rotate(90deg); color: var(--gold); }
+.acc-body { max-height: 0; overflow: hidden; transition: max-height .45s ease; }
+.acc-head.on + .acc-body { max-height: 420px; }
+.acc-img { width:100%; height:200px; object-fit:cover; display:block; margin-bottom:14px; }
+.acc-desc { font-size:.78rem; font-weight:300; line-height:1.78; color:rgba(242,237,228,.52); padding-bottom:20px; }
+
+/* ══════════════════════════════════════════════════
+   FOOD
+══════════════════════════════════════════════════ */
+.food-sec { display: grid; grid-template-columns: 1fr 1fr; min-height: 82vh; }
+.food-img { position:relative; overflow:hidden; min-height:480px; }
+.food-img img { transition:transform .9s ease; }
+.food-img:hover img { transform:scale(1.04); }
+.food-badge {
+  position:absolute; top:32px; right:32px; z-index:2;
+  background:var(--gold); color:var(--ink); padding:9px 16px;
+  font-size:.55rem; font-weight:400; letter-spacing:.2em; text-transform:uppercase;
+}
+.food-text {
+  background:var(--palm); padding:84px 68px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.food-text .label { color:var(--gold); }
+.food-text .h2   { color:var(--sand); margin-bottom:20px; }
+.food-text .body { color:rgba(242,237,228,.58); margin-bottom:44px; }
+.hours { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(255,255,255,.1); margin-bottom:36px; }
+.hour-item { background:rgba(0,0,0,.2); padding:16px 18px; }
+.hour-name { font-size:.56rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); font-weight:300; margin-bottom:3px; display:block; }
+.hour-time { font-family:var(--serif); font-size:.95rem; color:var(--sand); }
+
+/* ══════════════════════════════════════════════════
+   POOL
+══════════════════════════════════════════════════ */
+.pool-sec {
+  position: relative; min-height: 68vh; overflow: hidden;
+  display: flex; align-items: center;
+}
+.pool-bg {
+  position:absolute; inset:0;
+  background:
+    linear-gradient(to right, rgba(28,28,26,.86) 0%, rgba(28,28,26,.3) 55%, transparent 100%),
+    url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600&q=80') center/cover;
+}
+.pool-content { position:relative; z-index:2; padding:0 84px; max-width:560px; }
+.pool-content .h2 { color:var(--sand); margin-bottom:20px; }
+.pool-content .body { color:rgba(242,237,228,.62); margin-bottom:32px; }
+.pool-pass {
+  display:inline-flex; align-items:center; gap:12px;
+  border:1px solid rgba(184,150,90,.4); padding:12px 22px;
+  font-size:.6rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--gold); font-weight:300; transition:background .3s, border-color .3s;
+}
+.pool-pass:hover { background:rgba(184,150,90,.1); border-color:var(--gold); }
+
+/* ══════════════════════════════════════════════════
+   PACKAGES
+══════════════════════════════════════════════════ */
+.pkg-sec { padding: 96px 72px; background: var(--sand); }
+.pkg-hd  { text-align:center; margin-bottom:60px; }
+.pkg-hd .h2 { color: var(--bark); }
+.pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.pkg-card {
+  background:var(--cream); padding:48px 40px;
+  position:relative; overflow:hidden; transition:transform .3s, box-shadow .3s;
+}
+.pkg-card:hover { transform:translateY(-5px); box-shadow:0 18px 56px rgba(28,28,26,.1); }
+.pkg-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform .4s;
+}
+.pkg-card:hover::before { transform:scaleX(1); }
+.pkg-icon { font-size:1.9rem; margin-bottom:20px; display:block; }
+.pkg-for  { font-size:.52rem; letter-spacing:.24em; text-transform:uppercase; color:var(--dusk); margin-bottom:6px; font-weight:300; display:block; }
+.pkg-name { font-family:var(--serif); font-size:1.65rem; color:var(--bark); margin-bottom:24px; }
+.pkg-price { display:flex; align-items:baseline; gap:4px; margin-bottom:28px; }
+.pkg-from  { font-size:.58rem; color:var(--dusk); font-weight:300; }
+.pkg-amt   { font-family:var(--serif); font-size:2.4rem; color:var(--bark); line-height:1; }
+.pkg-per   { font-size:.62rem; color:var(--dusk); font-weight:300; }
+.pkg-list  { list-style:none; margin-bottom:36px; }
+.pkg-list li { font-size:.76rem; font-weight:300; color:#666; padding:9px 0; border-bottom:1px solid var(--mist); display:flex; align-items:center; gap:10px; }
+.pkg-list li::before { content:'→'; color:var(--gold); font-size:.66rem; }
+
+/* ══════════════════════════════════════════════════
+   TESTIMONIALS
+══════════════════════════════════════════════════ */
+.testi-sec { background:var(--ink); padding:96px 72px; }
+.testi-wrap { display:grid; grid-template-columns:320px 1fr; gap:80px; align-items:start; }
+.testi-l .h2 { color:var(--sand); margin-bottom:16px; }
+.testi-l .body { color:rgba(242,237,228,.38); margin-top:16px; }
+.testi-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.tcard {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06);
+  padding:32px; transition:background .4s, border-color .4s;
+}
+.tcard:hover { background:rgba(255,255,255,.07); border-color:rgba(184,150,90,.18); }
+.tcard.feat { grid-column:1/-1; background:rgba(184,150,90,.06); border-color:rgba(184,150,90,.14); }
+.tcard-stars { color:var(--gold); letter-spacing:4px; font-size:.72rem; margin-bottom:16px; }
+.tcard-text  { font-family:var(--serif); font-style:italic; font-size:.98rem; color:rgba(242,237,228,.78); line-height:1.65; margin-bottom:18px; }
+.tcard.feat .tcard-text { font-size:1.2rem; }
+.tcard-author { font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); font-weight:300; }
+
+/* ══════════════════════════════════════════════════
+   GALLERY STRIP
+══════════════════════════════════════════════════ */
+.gallery { display:flex; height:300px; overflow:hidden; }
+.gi { flex:1; overflow:hidden; position:relative; transition:flex .55s cubic-bezier(.25,.46,.45,.94); }
+.gi:hover { flex:2.4; }
+.gi img { transition:transform .7s ease; }
+.gi:hover img { transform:scale(1.06); }
+.gi-lbl {
+  position:absolute; bottom:14px; left:14px;
+  font-size:.52rem; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(242,237,228,.48); font-weight:300; opacity:0; transition:opacity .4s;
+}
+.gi:hover .gi-lbl { opacity:1; }
+
+/* ══════════════════════════════════════════════════
+   CTA
+══════════════════════════════════════════════════ */
+.cta-sec {
+  position:relative; min-height:70vh; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.cta-bg {
+  position:absolute; inset:0;
+  background:
+    linear-gradient(rgba(28,28,26,.58),rgba(28,28,26,.58)),
+    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80') center/cover;
+}
+.cta-content { position:relative; z-index:2; text-align:center; padding:0 40px; }
+.cta-title {
+  font-family:var(--serif); font-size:clamp(46px,8vw,100px);
+  font-weight:400; color:var(--sand); line-height:.95;
+  letter-spacing:-.01em; margin-bottom:44px;
+}
+.cta-title i { font-style:italic; color:var(--gold); }
+.cta-btns { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; }
+
+/* ══════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════ */
+footer { background:var(--bark); padding:76px 72px 36px; }
+.foot-top {
+  display:grid; grid-template-columns:2fr 1fr 1fr 1.1fr;
+  gap:56px; padding-bottom:56px;
+  border-bottom:1px solid rgba(255,255,255,.07); margin-bottom:36px;
+}
+.foot-logo { font-family:var(--serif); font-size:1.05rem; letter-spacing:.12em; text-transform:uppercase; color:var(--sand); display:block; margin-bottom:18px; }
+.foot-desc { font-size:.76rem; font-weight:300; line-height:1.85; color:rgba(242,237,228,.38); margin-bottom:24px; max-width:250px; letter-spacing:.03em; }
+.foot-socials { display:flex; gap:12px; }
+.fsoc {
+  width:34px; height:34px; border:1px solid rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.62rem; font-weight:300; color:rgba(242,237,228,.38); transition:all .3s; letter-spacing:.05em;
+}
+.fsoc:hover { border-color:var(--gold); color:var(--gold); }
+.foot-col h5 { font-size:.56rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); font-weight:400; margin-bottom:20px; }
+.foot-col ul { list-style:none; }
+.foot-col li { margin-bottom:10px; }
+.foot-col a  { font-size:.76rem; font-weight:300; color:rgba(242,237,228,.35); letter-spacing:.05em; transition:color .25s; }
+.foot-col a:hover { color:var(--sand); }
+.foot-col address { font-style:normal; font-size:.76rem; font-weight:300; line-height:1.85; color:rgba(242,237,228,.35); letter-spacing:.04em; }
+.foot-btm { display:flex; justify-content:space-between; align-items:center; }
+.foot-copy { font-size:.58rem; letter-spacing:.12em; color:rgba(242,237,228,.2); font-weight:300; }
+.foot-langs { display:flex; gap:16px; }
+.foot-langs a { font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(242,237,228,.2); transition:color .25s; }
+.foot-langs a:hover, .foot-langs a.on { color:var(--gold); }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — TABLET
+══════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  #nav { padding: 0 32px; }
+  .nav-links, .nav-book { display: none; }
+  .burger { display: flex; }
+
+  .hero-content { padding: 0 40px 72px; }
+  .intro { grid-template-columns: 1fr; }
+  .intro-img { min-height: 360px; }
+  .intro-text { padding: 56px 40px; }
+  .numbers { grid-template-columns: repeat(2,1fr); }
+  .num-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); padding: 44px 36px; }
+  .num-item:nth-child(odd) { border-right: 1px solid rgba(255,255,255,.07); }
+  .num-item:last-child, .num-item:nth-last-child(2) { border-bottom: none; }
+  .rooms-sec { padding: 72px 32px; }
+  .rooms-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 300px 240px 240px; }
+  .room-card:first-child { grid-row: auto; grid-column: 1/-1; }
+  .exp-desktop { grid-template-columns: 260px 1fr; }
+  .exp-left { padding: 56px 36px; }
+  .food-sec { grid-template-columns: 1fr; }
+  .food-img { min-height: 360px; }
+  .food-text { padding: 56px 40px; }
+  .pool-content { padding: 0 48px; }
+  .pkg-sec { padding: 72px 32px; }
+  .pkg-grid { grid-template-columns: 1fr; }
+  .testi-sec { padding: 72px 40px; }
+  .testi-wrap { grid-template-columns: 1fr; gap: 44px; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .tcard.feat { grid-column: auto; }
+  .gallery { height: 240px; }
+  footer { padding: 60px 32px 32px; }
+  .foot-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+══════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Base */
+  #nav { padding: 0 20px; height: 56px; }
+
+  /* Hero */
+  .hero-content { padding: 0 22px 60px; }
+  .hero-title { font-size: clamp(36px, 10.5vw, 54px); line-height: 1.02; }
+  .hero-sub { font-size: .76rem; max-width: 100%; padding: 12px 14px; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .hero-scroll { display: none; }
+
+  /* Marquee */
+  .marquee-item { font-size: .44rem; padding: 0 16px; letter-spacing: .15em; }
+
+  /* Intro */
+  .intro-img { min-height: 270px; }
+  .intro-text { padding: 40px 22px; }
+  .founders { flex-direction: column; gap: 10px; }
+
+  /* Numbers */
+  .num-item { padding: 30px 20px; }
+  .num-big  { font-size: clamp(38px, 10vw, 58px); }
+
+  /* Rooms — image + solid info panel below, no hover overlay */
+  .rooms-sec { padding: 52px 18px; }
+  .rooms-head { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 28px; }
+  .rooms-grid { display: flex; flex-direction: column; gap: 16px; }
+  .room-card { overflow: visible; height: auto; display: flex; flex-direction: column; }
+  .room-card:first-child { grid-row: auto; grid-column: auto; }
+  /* image */
+  .room-card > img { height: 220px; flex-shrink: 0; position: static; width: 100%; }
+  /* kill hover overlay & static label on mobile */
+  .room-over { display: none !important; }
+  .room-lbl  { display: none !important; }
+  /* solid panel */
+  .room-info-panel {
+    background: var(--bark); padding: 16px 20px 20px;
+    flex-shrink: 0;
+  }
+  .room-info-panel .rip-tag  { font-size:.5rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); font-weight:300; display:block; margin-bottom:4px; }
+  .room-info-panel .rip-name { font-family:var(--serif); font-size:1.15rem; color:var(--sand); margin-bottom:6px; }
+  .room-info-panel .rip-feat { font-size:.72rem; font-weight:300; color:rgba(242,237,228,.58); line-height:1.55; margin-bottom:10px; }
+  .room-info-panel .rip-cta  { font-size:.54rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); border-bottom:1px solid rgba(184,150,90,.5); padding-bottom:2px; display:inline-block; }
+
+  /* Experiences — hide desktop layout, show accordion */
+  .exp-desktop { display: none !important; }
+  .exp-mobile  { display: block; }
+  .exp-mobile-hd { padding: 48px 24px 28px; }
+  .exp-mobile-hd .h2 { color: var(--sand); margin-bottom: 16px; }
+  .exp-mobile-hd .body { color: rgba(242,237,228,.45); }
+
+  /* Food */
+  .food-img { min-height: 260px; }
+  .food-text { padding: 40px 22px; }
+
+  /* Pool — darken overlay so text is readable without side gradient */
+  .pool-bg {
+    background:
+      rgba(28,28,26,.78),
+      url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600&q=80') center/cover;
+    background: linear-gradient(rgba(28,28,26,.78),rgba(28,28,26,.78)),
+      url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600&q=80') center/cover;
+  }
+  .pool-content { padding: 48px 22px; max-width: 100%; }
+  .pool-sec { min-height: 50vh; }
+
+  /* Packages */
+  .pkg-sec { padding: 52px 18px; }
+  .pkg-grid { grid-template-columns: 1fr; }
+  .pkg-card { padding: 34px 22px; }
+
+  /* Testimonials */
+  .testi-sec { padding: 52px 18px; }
+  .testi-wrap { grid-template-columns: 1fr; gap: 30px; }
+  .testi-grid { grid-template-columns: 1fr; gap: 10px; }
+  .tcard { padding: 22px 16px; }
+  .tcard.feat .tcard-text { font-size: .96rem; }
+
+  /* Gallery */
+  .gallery { height: 160px; }
+
+  /* CTA */
+  .cta-sec { min-height: 55vh; }
+  .cta-title { font-size: clamp(38px,12vw,66px); }
+  .cta-btns { flex-direction: column; align-items: center; gap: 14px; }
+
+  /* Footer */
+  footer { padding: 44px 18px 22px; }
+  .foot-top { grid-template-columns: 1fr; gap: 28px; }
+  .foot-btm { flex-direction: column; gap: 10px; text-align: center; }
+
+  .wa { bottom: 18px; right: 18px; width: 44px; height: 44px; }
+  .wa svg { width: 22px; height: 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- Floating buttons -->
+<div class="floats">
+  <a class="float-btn float-ig" href="https://www.instagram.com/villa_coco_panama/" target="_blank" aria-label="Instagram">
+    <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  </a>
+  <a class="float-btn float-wa" href="https://wa.me/50768583330" target="_blank" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+</div>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Villa Coco</a>
+  <ul class="nav-links">
+    <li><a href="#rooms">Sleep</a></li>
+    <li><a href="#food">Eat & Drink</a></li>
+    <li><a href="#exp">Experiences</a></li>
+    <li><a href="#packages">Packages</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://www.simplebooking.it/ibe2/hotel/5068?lang=EN&cur=USD" class="nav-book" target="_blank">Book Now</a>
+    <button class="burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Drawer -->
+<div id="drawer">
+  <ul>
+    <li><a href="#rooms"    class="dl">Sleep</a></li>
+    <li><a href="#food"     class="dl">Eat & Drink</a></li>
+    <li><a href="#exp"      class="dl">Experiences</a></li>
+    <li><a href="#packages" class="dl">Packages</a></li>
+    <li><a href="#contact"  class="dl">Contact</a></li>
+  </ul>
+  <a href="https://www.simplebooking.it/ibe2/hotel/5068?lang=EN&cur=USD" class="drawer-book" target="_blank">Book Now</a>
+</div>
+
+<!-- ─── HERO ─────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-fade"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-content">
+    <p class="hero-loc">Santa Catalina · Veraguas · Panama</p>
+    <h1 class="hero-title">Where the<br>jungle <i>whispers</i><br>to the sea</h1>
+    <p class="hero-sub">A family-run sanctuary on Panama's Pacific coast. Twelve rooms. An infinity pool. Coiba at your doorstep.</p>
+    <div class="hero-actions">
+      <a href="https://www.simplebooking.it/ibe2/hotel/5068?lang=EN&cur=USD" class="btn-gold" target="_blank">Reserve Your Stay</a>
+      <a href="#rooms" class="btn-ghost">Explore the property</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Discover</span>
+  </div>
+</section>
+
+<!-- ─── MARQUEE ───────────────────────────── -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Boutique Hotel <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Santa Catalina, Panama <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Infinity Pool <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Coiba National Park <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">World-Class Surf <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Ai Mamita Restaurant <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Swiss–Panamanian Soul <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Est. 2018 <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Boutique Hotel <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Santa Catalina, Panama <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Infinity Pool <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Coiba National Park <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">World-Class Surf <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Ai Mamita Restaurant <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Swiss–Panamanian Soul <span class="marquee-dot">✦</span></span>
+    <span class="marquee-item">Est. 2018 <span class="marquee-dot">✦</span></span>
+  </div>
+</div>
+
+<!-- ─── INTRO ─────────────────────────────── -->
+<section class="intro">
+  <div class="intro-img rvl">
+    <img src="https://images.unsplash.com/photo-1596178060671-7a80dc8059ea?w=900&q=80" alt="Villa Coco garden">
+    <div class="intro-img-tag">Santa Catalina · Veraguas · Panamá</div>
+  </div>
+  <div class="intro-text">
+    <span class="label rv d1">Our Origin</span>
+    <h2 class="h2 rv d2">A <i>Panamanian</i><br>& Swiss vision,<br>built with love</h2>
+    <p class="body rv d3" style="margin-top:22px;">Olivia from Switzerland and Tuza from Panama built Villa Coco from the ground up in 2018 — not as investors, but as people who fell in love with Santa Catalina and wanted a place worthy of it.<br><br>Every outdoor shower, every hammock, every dish at Ai Mamita carries that intention.</p>
+    <div class="intro-origin rv d4">Family-owned & operated since 2018</div>
+    <div class="founders rv d4">
+      <div class="founder-chip"><strong>Olivia</strong>Switzerland</div>
+      <div class="founder-chip"><strong>Tuza</strong>Panama</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NUMBERS ────────────────────────────── -->
+<div class="numbers">
+  <div class="num-item rv d1"><span class="num-big">12</span><span class="num-lbl">Rooms & Villas</span></div>
+  <div class="num-item rv d2"><span class="num-big">7+</span><span class="num-lbl">Years of Story</span></div>
+  <div class="num-item rv d3"><span class="num-big">9.4</span><span class="num-lbl">Guest Rating</span></div>
+  <div class="num-item rv d4"><span class="num-big">18m</span><span class="num-lbl">Infinity Pool</span></div>
+</div>
+
+<!-- ─── ROOMS ──────────────────────────────── -->
+<section class="rooms-sec" id="rooms">
+  <div class="rooms-head rv">
+    <div>
+      <span class="label">Where You'll Sleep</span>
+      <h2 class="h2">Twelve rooms,<br><i>one feeling</i></h2>
+    </div>
+    <a href="#" class="btn-ghost" style="color:var(--ocean);border-color:var(--ocean);">View all rooms</a>
+  </div>
+
+  <!-- Desktop grid (hidden on mobile via CSS, real DOM stays) -->
+  <div class="rooms-grid rv" id="rooms-desktop">
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80" alt="Deluxe Villa">
+      <div class="room-over">
+        <span class="room-over-tag">Our Finest · From $140</span>
+        <div class="room-over-name">Deluxe Villa</div>
+        <p class="room-over-feat">King bed, private outdoor shower, terrace with hammock and partial sea view.</p>
+        <a href="#" class="room-over-cta">View Room</a>
+      </div>
+      <span class="room-lbl">Deluxe Villa</span>
+    </div>
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=700&q=80" alt="King Room">
+      <div class="room-over">
+        <span class="room-over-tag">From $90 / night</span>
+        <div class="room-over-name">King Room</div>
+        <p class="room-over-feat">Calm tones, locally crafted furniture, outdoor garden shower.</p>
+        <a href="#" class="room-over-cta">View Room</a>
+      </div>
+      <span class="room-lbl">King Room</span>
+    </div>
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=700&q=80" alt="Twin Room">
+      <div class="room-over">
+        <span class="room-over-tag">From $80 / night</span>
+        <div class="room-over-name">Twin Room</div>
+        <p class="room-over-feat">Natural palette, sustainability touches, two single beds in the jungle.</p>
+        <a href="#" class="room-over-cta">View Room</a>
+      </div>
+      <span class="room-lbl">Twin Room</span>
+    </div>
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=700&q=80" alt="Boho Suite">
+      <div class="room-over">
+        <span class="room-over-tag">From $120 / night</span>
+        <div class="room-over-name">Boho Suite</div>
+        <p class="room-over-feat">Chic boho style, two queens, beautiful seating area.</p>
+        <a href="#" class="room-over-cta">View Room</a>
+      </div>
+      <span class="room-lbl">Boho Suite</span>
+    </div>
+    <div class="room-card">
+      <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=700&q=80" alt="Deluxe King">
+      <div class="room-over">
+        <span class="room-over-tag">From $110 / night</span>
+        <div class="room-over-name">Deluxe King</div>
+        <p class="room-over-feat">Spanish tile floors, coffee machine, partial sea views.</p>
+        <a href="#" class="room-over-cta">View Room</a>
+      </div>
+      <span class="room-lbl">Deluxe King</span>
+    </div>
+  </div>
+
+  <!-- Mobile stack — injected by JS below -->
+  <div id="rooms-mobile" style="display:none;"></div>
+</section>
+
+<!-- ─── EXPERIENCES ────────────────────────── -->
+<section class="exp-sec" id="exp">
+
+  <!-- Desktop two-column -->
+  <div class="exp-desktop">
+    <div class="exp-left">
+      <div>
+        <span class="label">Beyond the Property</span>
+        <h2 class="h2">Santa Catalina<br><i>awaits you</i></h2>
+        <p class="body" style="margin-top:18px;">Panama's Pacific coast is one of the world's last truly wild coastlines.</p>
+      </div>
+      <div class="exp-tabs" id="exp-tabs">
+        <div class="exp-tab on" data-i="0">Surf La Punta</div>
+        <div class="exp-tab" data-i="1">Dive Coiba</div>
+        <div class="exp-tab" data-i="2">Island Hopping</div>
+        <div class="exp-tab" data-i="3">Yoga & Surf Retreats</div>
+        <div class="exp-tab" data-i="4">Horseback Riding</div>
+      </div>
+    </div>
+    <div class="exp-right" id="exp-panels">
+      <div class="exp-panel on">
+        <img src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=1000&q=80" alt="Surf">
+        <div class="exp-panel-info">
+          <div class="exp-panel-title">Surf La Punta</div>
+          <p class="exp-panel-desc">The most consistent wave in Panama — ranked among the best in Central America. Five minutes from Villa Coco. Boards and lessons for all levels.</p>
+        </div>
+      </div>
+      <div class="exp-panel">
+        <img src="https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=1000&q=80" alt="Dive">
+        <div class="exp-panel-info">
+          <div class="exp-panel-title">Dive Coiba</div>
+          <p class="exp-panel-desc">A UNESCO World Heritage Site. Whale sharks, hammerheads, dolphins, turtles and coral reefs in crystal Pacific waters. Day trips arranged from the hotel.</p>
+        </div>
+      </div>
+      <div class="exp-panel">
+        <img src="https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1000&q=80" alt="Islands">
+        <div class="exp-panel-info">
+          <div class="exp-panel-title">Island Hopping</div>
+          <p class="exp-panel-desc">Explore Cebaco and the surrounding archipelago. Pristine volcanic beaches, deserted bays, turquoise water — almost no one else around.</p>
+        </div>
+      </div>
+      <div class="exp-panel">
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1000&q=80" alt="Yoga">
+        <div class="exp-panel-info">
+          <div class="exp-panel-title">Yoga & Surf Retreats</div>
+          <p class="exp-panel-desc">Six-night all-inclusive retreats with Waluaa Surf & Yoga. Surf coaching, yoga, meditation — relaxed, welcoming, with a pampered touch.</p>
+        </div>
+      </div>
+      <div class="exp-panel">
+        <img src="https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=1000&q=80" alt="Horseback">
+        <div class="exp-panel-info">
+          <div class="exp-panel-title">Horseback Riding</div>
+          <p class="exp-panel-desc">Ride through jungle and along volcanic black-sand beaches — one of the most memorable ways to experience Panama's Pacific coast.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile accordion -->
+  <div class="exp-mobile">
+    <div class="exp-mobile-hd">
+      <span class="label">Beyond the Property</span>
+      <h2 class="h2">Santa Catalina<br><i>awaits</i></h2>
+      <p class="body" style="margin-top:16px;">Panama's Pacific coast is one of the world's last truly wild coastlines.</p>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head on">Surf La Punta <span class="acc-arrow">›</span></div>
+      <div class="acc-body">
+        <img class="acc-img" src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=700&q=75" alt="Surf">
+        <p class="acc-desc">The most consistent wave in Panama. Five minutes from Villa Coco. Boards and lessons for all levels.</p>
+      </div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head">Dive Coiba <span class="acc-arrow">›</span></div>
+      <div class="acc-body">
+        <img class="acc-img" src="https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=700&q=75" alt="Dive">
+        <p class="acc-desc">UNESCO World Heritage Site. Whale sharks, dolphins, turtles and coral reefs in crystal Pacific waters.</p>
+      </div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head">Island Hopping <span class="acc-arrow">›</span></div>
+      <div class="acc-body">
+        <img class="acc-img" src="https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=700&q=75" alt="Islands">
+        <p class="acc-desc">Pristine volcanic beaches, deserted bays, turquoise water. The Pacific's best-kept secret.</p>
+      </div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head">Yoga & Surf Retreats <span class="acc-arrow">›</span></div>
+      <div class="acc-body">
+        <img class="acc-img" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=700&q=75" alt="Yoga">
+        <p class="acc-desc">Six-night all-inclusive retreats with Waluaa. Surf coaching, yoga, meditation — relaxed and pampered.</p>
+      </div>
+    </div>
+    <div class="acc-item">
+      <div class="acc-head">Horseback Riding <span class="acc-arrow">›</span></div>
+      <div class="acc-body">
+        <img class="acc-img" src="https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=700&q=75" alt="Horseback">
+        <p class="acc-desc">Through jungle and along volcanic black-sand beaches. Unforgettable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOD ───────────────────────────────── -->
+<section class="food-sec" id="food">
+  <div class="food-img">
+    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80" alt="Ai Mamita">
+    <div class="food-badge">Ai Mamita · Daily Menu</div>
+  </div>
+  <div class="food-text">
+    <span class="label rv">Ai Mamita Restaurant</span>
+    <h2 class="h2 rv d1">Food that<br><i>tastes like</i><br>Panama</h2>
+    <p class="body rv d2" style="margin-top:18px;">Chef Tuza sources from local fishermen and organic growers. The dinner menu changes daily — built around the morning's catch and the season's harvest.</p>
+    <div class="hours rv d3">
+      <div class="hour-item"><span class="hour-name">Breakfast</span><span class="hour-time">07:15 – 10:00</span></div>
+      <div class="hour-item"><span class="hour-name">Lunch</span><span class="hour-time">12:00 – 14:30</span></div>
+      <div class="hour-item"><span class="hour-name">Dinner</span><span class="hour-time">18:30 – 21:30</span></div>
+      <div class="hour-item"><span class="hour-name">Pool Bar</span><span class="hour-time">Open Daily</span></div>
+    </div>
+    <a href="#" class="btn-gold rv d4" style="width:fit-content;">View the Menu</a>
+  </div>
+</section>
+
+<!-- ─── POOL ───────────────────────────────── -->
+<section class="pool-sec">
+  <div class="pool-bg"></div>
+  <div class="pool-content rvl">
+    <span class="label">The Infinity Pool</span>
+    <h2 class="h2">18 metres of<br><i>Pacific calm</i></h2>
+    <p class="body" style="margin-top:18px;">Lounge on sunbeds. Sip a Piña Colada under banana trees. Watch the ocean. Time slows here. Open to day visitors.</p>
+    <a href="https://wa.me/50768583330" class="pool-pass" style="margin-top:28px;">Day Pass Available → WhatsApp Us</a>
+  </div>
+</section>
+
+<!-- ─── PACKAGES ───────────────────────────── -->
+<section class="pkg-sec" id="packages">
+  <div class="pkg-hd rv">
+    <span class="label" style="text-align:center;">Stay Longer · Save More</span>
+    <h2 class="h2">Our <i>Packages</i></h2>
+  </div>
+  <div class="pkg-grid rv">
+    <div class="pkg-card">
+      <span class="pkg-icon">🌊</span>
+      <span class="pkg-for">For Two · 2 Nights</span>
+      <div class="pkg-name">Coiba Package</div>
+      <div class="pkg-price"><span class="pkg-from">From</span><span class="pkg-amt">$419</span><span class="pkg-per">/ couple</span></div>
+      <ul class="pkg-list">
+        <li>Snorkel & Whale Watching in Coiba</li>
+        <li>Two nights at Villa Coco</li>
+        <li>American Breakfast daily</li>
+        <li>Welcome Drink & Infinity Pool</li>
+      </ul>
+      <a href="mailto:relax@villacocopanama.com" class="btn-gold">Enquire Now</a>
+    </div>
+    <div class="pkg-card">
+      <span class="pkg-icon">🏄</span>
+      <span class="pkg-for">For Two · 2 Nights</span>
+      <div class="pkg-name">Surf Package</div>
+      <div class="pkg-price"><span class="pkg-from">From</span><span class="pkg-amt">$399</span><span class="pkg-per">/ couple</span></div>
+      <ul class="pkg-list">
+        <li>90-minute Surf Class</li>
+        <li>Two nights at Villa Coco</li>
+        <li>American Breakfast daily</li>
+        <li>Welcome Drink & Infinity Pool</li>
+      </ul>
+      <a href="mailto:relax@villacocopanama.com" class="btn-gold">Enquire Now</a>
+    </div>
+    <div class="pkg-card">
+      <span class="pkg-icon">🧖</span>
+      <span class="pkg-for">For Two · 2 Nights</span>
+      <div class="pkg-name">Detox Package</div>
+      <div class="pkg-price"><span class="pkg-from">From</span><span class="pkg-amt">$439</span><span class="pkg-per">/ couple</span></div>
+      <ul class="pkg-list">
+        <li>90-minute Relaxing Massage</li>
+        <li>Two nights at Villa Coco</li>
+        <li>American Breakfast daily</li>
+        <li>Welcome Drink & Infinity Pool</li>
+      </ul>
+      <a href="mailto:relax@villacocopanama.com" class="btn-gold">Enquire Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ───────────────────────── -->
+<section class="testi-sec">
+  <div class="testi-wrap">
+    <div class="testi-l">
+      <span class="label rv">Guest Voices</span>
+      <h2 class="h2 rv d1">What stays<br><i>with you</i></h2>
+      <p class="body rv d2">Three guests. Three countries. One feeling.</p>
+    </div>
+    <div class="testi-grid rv">
+      <div class="tcard feat">
+        <div class="tcard-stars">★★★★★</div>
+        <p class="tcard-text">"Staff were kind and accommodating, arranging tours etc. Breakfast was exceptional — the restaurant is simply fabulous: fresh seafood, wonderful taste and presentation."</p>
+        <span class="tcard-author">Jessica · Panama City, Panama</span>
+      </div>
+      <div class="tcard">
+        <div class="tcard-stars">★★★★★</div>
+        <p class="tcard-text">"Built with love. Even the shower is outside, surrounded by tropical plants. This place is all about details and eco style."</p>
+        <span class="tcard-author">Eryka · Russia</span>
+      </div>
+      <div class="tcard">
+        <div class="tcard-stars">★★★★★</div>
+        <p class="tcard-text">"Beautifully decorated. I could have spent the whole day just lounging outside or by the pool — and honestly, I did."</p>
+        <span class="tcard-author">Claire · USA</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GALLERY ────────────────────────────── -->
+<div class="gallery">
+  <div class="gi"><img src="https://images.unsplash.com/photo-1602002418816-5c0aeef426aa?w=600&q=80" alt="Pool"><span class="gi-lbl">The Pool</span></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=600&q=80" alt="Beach"><span class="gi-lbl">Santa Catalina</span></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1536625737227-92a4e25b8c4e?w=600&q=80" alt="Jungle"><span class="gi-lbl">The Garden</span></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="Food"><span class="gi-lbl">Ai Mamita</span></div>
+  <div class="gi"><img src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=600&q=80" alt="Surf"><span class="gi-lbl">La Punta</span></div>
+</div>
+
+<!-- ─── CTA ────────────────────────────────── -->
+<section class="cta-sec">
+  <div class="cta-bg"></div>
+  <div class="cta-content rv">
+    <span class="label" style="display:block;text-align:center;margin-bottom:18px;">Your sanctuary awaits</span>
+    <h2 class="cta-title">Ready to<br><i>escape?</i></h2>
+    <div class="cta-btns">
+      <a href="https://www.simplebooking.it/ibe2/hotel/5068?lang=EN&cur=USD" class="btn-gold" target="_blank">Book Your Stay</a>
+      <a href="https://wa.me/50768583330" class="btn-ghost">Message on WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────── -->
+<footer id="contact">
+  <div class="foot-top">
+    <div>
+      <a href="#" class="foot-logo">Villa Coco</a>
+      <p class="foot-desc">A boutique hotel built with passion by a Panamanian–Swiss family. Santa Catalina, Panama's Pacific coast.</p>
+      <div class="foot-socials">
+        <a href="https://www.instagram.com/villa_coco_panama/" class="fsoc" target="_blank">ig</a>
+        <a href="https://www.facebook.com/villacocopanama" class="fsoc" target="_blank">fb</a>
+        <a href="https://wa.me/50768583330" class="fsoc" target="_blank">wa</a>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h5>Explore</h5>
+      <ul>
+        <li><a href="#rooms">Sleep</a></li>
+        <li><a href="#food">Eat & Drink</a></li>
+        <li><a href="#exp">Experiences</a></li>
+        <li><a href="#packages">Packages</a></li>
+        <li><a href="#">Impact</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Plan Your Stay</h5>
+      <ul>
+        <li><a href="https://www.simplebooking.it/ibe2/hotel/5068?lang=EN&cur=USD" target="_blank">Book Online</a></li>
+        <li><a href="#packages">Packages</a></li>
+        <li><a href="https://wa.me/50768583330">Pool Day Pass</a></li>
+        <li><a href="mailto:relax@villacocopanama.com">Group Buyouts</a></li>
+        <li><a href="#">Policies</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Find Us</h5>
+      <address>Via Catalina Farms<br>Santa Catalina<br>Veraguas, Panamá<br><br>relax@villacocopanama.com<br>+507 6858 3330</address>
+    </div>
+  </div>
+  <div class="foot-btm">
+    <p class="foot-copy">© 2025 Villa Coco Panama — All rights reserved</p>
+    <div class="foot-langs">
+      <a href="#" class="on">EN</a>
+      <a href="#">ES</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── CURSOR (desktop) */
+const cur  = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+const touch = window.matchMedia('(hover:none)').matches;
+if (!touch) {
+  document.body.style.cursor = 'none';
+  document.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; });
+  (function tick(){
+    rx+=(mx-rx)*.16; ry+=(my-ry)*.16;
+    cur.style.transform  = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+    ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ ring.style.width='52px'; ring.style.height='52px'; });
+    el.addEventListener('mouseleave',()=>{ ring.style.width='36px'; ring.style.height='36px'; });
+  });
+} else {
+  cur.style.display = ring.style.display = 'none';
+}
+
+/* ── NAV scroll */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll',()=>{ nav.classList.toggle('scrolled', scrollY>60); });
+
+/* ── BURGER */
+const burger = document.getElementById('burger');
+const drawer = document.getElementById('drawer');
+burger.addEventListener('click',()=>{
+  burger.classList.toggle('open');
+  drawer.classList.toggle('open');
+  document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+});
+document.querySelectorAll('.dl').forEach(a=>{
+  a.addEventListener('click',()=>{
+    burger.classList.remove('open');
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+/* ── SCROLL REVEAL */
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); }),{threshold:.1});
+document.querySelectorAll('.rv,.rvl').forEach(el=>io.observe(el));
+
+/* ── DESKTOP EXP TABS */
+document.querySelectorAll('.exp-tab').forEach((tab,i)=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.exp-tab').forEach(t=>t.classList.remove('on'));
+    document.querySelectorAll('.exp-panel').forEach(p=>p.classList.remove('on'));
+    tab.classList.add('on');
+    document.querySelectorAll('.exp-panel')[i].classList.add('on');
+  });
+});
+
+/* ── MOBILE ACCORDION */
+document.querySelectorAll('.acc-head').forEach(head=>{
+  head.addEventListener('click',()=>{
+    const isOn = head.classList.contains('on');
+    document.querySelectorAll('.acc-head').forEach(h=>h.classList.remove('on'));
+    if(!isOn) head.classList.add('on');
+  });
+});
+
+/* ── MOBILE ROOMS: inject solid panels */
+const roomData = [
+  { img:'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=700&q=80', tag:'Our Finest · From $140/night', name:'Deluxe Villa', feat:'King bed, private outdoor shower, terrace with hammock and partial sea view.' },
+  { img:'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=700&q=80', tag:'From $90 / night', name:'King Room', feat:'Calm tones, locally crafted furniture, outdoor garden shower.' },
+  { img:'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=700&q=80', tag:'From $80 / night', name:'Twin Room', feat:'Natural palette, sustainability touches, two single beds in the jungle.' },
+  { img:'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=700&q=80', tag:'From $120 / night', name:'Boho Suite', feat:'Chic boho style, two queens, beautiful seating area.' },
+  { img:'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=700&q=80', tag:'From $110 / night', name:'Deluxe King', feat:'Spanish tile floors, coffee machine, some rooms with partial sea view.' },
+];
+const mobileRooms = document.getElementById('rooms-mobile');
+mobileRooms.innerHTML = roomData.map(r=>`
+  <div style="margin-bottom:16px;">
+    <img src="${r.img}" alt="${r.name}" style="width:100%;height:220px;object-fit:cover;display:block;">
+    <div style="background:#2b2420;padding:16px 20px 20px;">
+      <span style="display:block;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:#b8965a;font-weight:300;margin-bottom:4px;">${r.tag}</span>
+      <div style="font-family:'Playfair Display',serif;font-size:1.15rem;color:#f2ede4;margin-bottom:6px;">${r.name}</div>
+      <p style="font-size:.72rem;font-weight:300;color:rgba(242,237,228,.58);line-height:1.55;margin-bottom:10px;">${r.feat}</p>
+      <a href="#" style="font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;color:#b8965a;border-bottom:1px solid rgba(184,150,90,.5);padding-bottom:2px;">View Room</a>
+    </div>
+  </div>
+`).join('');
+
+/* ── SWITCH desktop/mobile rooms layout */
+function setRoomsLayout(){
+  const isMobile = window.innerWidth <= 640;
+  document.getElementById('rooms-desktop').style.display = isMobile ? 'none' : '';
+  document.getElementById('rooms-mobile').style.display  = isMobile ? 'block' : 'none';
+}
+setRoomsLayout();
+window.addEventListener('resize', setRoomsLayout);
+
+/* ══════════════════════════════════════════
+   CMS — apply admin panel changes to live site
+   Cloud-first (JSONBin), localStorage fallback
+══════════════════════════════════════════ */
+(function(){
+  const STORE_KEY    = 'villacoco_content';
+  const JSONBIN_KEY  = '$2a$10$9uOj1nnUbTlpMO/44/ALqO1M9k/oki2B4milx4OeyZSUtCxt2Y9GW'; // same as admin.html
+  const JSONBIN_BIN  = '69efe10faaba8821974531ae';             // same as admin.html
+  const JSONBIN_URL  = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN}/latest`;
+  const hasJsonBinCreds = JSONBIN_KEY.trim().length > 0 && JSONBIN_BIN.trim().length > 0;
+  const isValidBinId = /^[a-f0-9]{24}$/i.test(JSONBIN_BIN.trim());
+  const CLOUD_ON = hasJsonBinCreds && isValidBinId;
+  const CLOUD_POLL_MS = 15000;
+  let lastCmsSignature = '';
+
+  // Apply CMS data to the DOM
+  function applyCMS(cms){
+    if(!cms || !Object.keys(cms).length) return;
+
+    /* ── HERO ── */
+    if(cms.hero){
+      const h = cms.hero;
+      const title = document.querySelector('.hero-title');
+      if(title && (h.line1||h.line2||h.line3))
+        title.innerHTML = `${h.line1||''}<br>${h.line2||''}<br>${h.line3||''}`;
+      const loc = document.querySelector('.hero-loc');
+      if(loc && h.location) loc.textContent = h.location;
+      const sub = document.querySelector('.hero-sub');
+      if(sub && h.sub) sub.textContent = h.sub;
+      const bg = document.querySelector('.hero-bg');
+      if(bg && h.img) bg.style.backgroundImage = `url('${h.img}')`;
+    }
+
+    /* ── HOURS ── */
+    if(cms.hours?.length){
+      document.querySelectorAll('.hour-item').forEach((el,i)=>{
+        const h = cms.hours[i]; if(!h) return;
+        const name = el.querySelector('.hour-name');
+        const time = el.querySelector('.hour-time');
+        if(name) name.textContent = h.service;
+        if(time) time.textContent = h.closed ? 'Closed' : `${h.open} – ${h.close}`;
+      });
+      if(cms.hoursNote){
+        let noteEl = document.getElementById('cms-hours-note');
+        if(!noteEl){
+          noteEl = document.createElement('p');
+          noteEl.id = 'cms-hours-note';
+          noteEl.style.cssText = 'font-size:.7rem;color:rgba(242,237,228,.45);margin-top:12px;font-weight:300;font-style:italic;';
+          const hoursEl = document.querySelector('.hours');
+          if(hoursEl) hoursEl.parentNode.insertBefore(noteEl, hoursEl.nextSibling);
+        }
+        noteEl.textContent = cms.hoursNote;
+      }
+    }
+
+    /* ── EXPERIENCES ── */
+    if(cms.experiences?.length){
+      const tabsEl   = document.getElementById('exp-tabs');
+      const panelsEl = document.getElementById('exp-panels');
+      if(tabsEl && panelsEl){
+        tabsEl.innerHTML = cms.experiences.map((e,i)=>`
+          <div class="exp-tab${i===0?' on':''}" data-i="${i}">${e.title}</div>`).join('');
+        panelsEl.innerHTML = cms.experiences.map((e,i)=>`
+          <div class="exp-panel${i===0?' on':''}">
+            <img src="${e.img}" alt="${e.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+            <div class="exp-panel-info">
+              <div class="exp-panel-title">${e.title}</div>
+              <p class="exp-panel-desc">${e.desc}</p>
+            </div>
+          </div>`).join('');
+        tabsEl.querySelectorAll('.exp-tab').forEach((tab,i)=>{
+          tab.addEventListener('click',()=>{
+            tabsEl.querySelectorAll('.exp-tab').forEach(t=>t.classList.remove('on'));
+            panelsEl.querySelectorAll('.exp-panel').forEach(p=>p.classList.remove('on'));
+            tab.classList.add('on');
+            panelsEl.querySelectorAll('.exp-panel')[i]?.classList.add('on');
+          });
+        });
+      }
+      const accEl = document.querySelector('.exp-mobile');
+      if(accEl){
+        const hd = accEl.querySelector('.exp-mobile-hd');
+        accEl.innerHTML = '';
+        if(hd) accEl.appendChild(hd);
+        cms.experiences.forEach((e,i)=>{
+          const item = document.createElement('div');
+          item.className = 'acc-item';
+          item.innerHTML = `
+            <div class="acc-head${i===0?' on':''}">${e.title} <span class="acc-arrow">›</span></div>
+            <div class="acc-body">
+              <img class="acc-img" src="${e.img}" alt="${e.title}">
+              <p class="acc-desc">${e.desc}</p>
+            </div>`;
+          accEl.appendChild(item);
+        });
+        accEl.querySelectorAll('.acc-head').forEach(head=>{
+          head.addEventListener('click',()=>{
+            const isOn = head.classList.contains('on');
+            accEl.querySelectorAll('.acc-head').forEach(h=>h.classList.remove('on'));
+            if(!isOn) head.classList.add('on');
+          });
+        });
+      }
+    }
+
+    /* ── PACKAGES ── */
+    if(cms.packages?.length){
+      const grid = document.querySelector('.pkg-grid');
+      if(grid) grid.innerHTML = cms.packages.map(p=>`
+        <div class="pkg-card">
+          <span class="pkg-icon">${p.icon||'✨'}</span>
+          <span class="pkg-for">${p.for||''}</span>
+          <div class="pkg-name">${p.name||''}</div>
+          <div class="pkg-price">
+            <span class="pkg-from">From</span>
+            <span class="pkg-amt">$${p.price||'0'}</span>
+            <span class="pkg-per">/ couple</span>
+          </div>
+          <ul class="pkg-list">
+            ${(p.features||'').split('\n').filter(f=>f.trim()).map(f=>`<li>${f.trim()}</li>`).join('')}
+          </ul>
+          <a href="mailto:relax@villacocopanama.com" class="btn-gold">Enquire Now</a>
+        </div>`).join('');
+    }
+
+    /* ── GALLERY ── */
+    if(cms.gallery?.length){
+      const strip = document.querySelector('.gallery');
+      if(strip) strip.innerHTML = cms.gallery.map(g=>`
+        <div class="gi">
+          <img src="${g.url}" alt="${g.label||''}">
+          <span class="gi-lbl">${g.label||''}</span>
+        </div>`).join('');
+    }
+
+    /* ── TESTIMONIALS ── */
+    if(cms.testimonials?.length){
+      const grid = document.querySelector('.testi-grid');
+      if(grid){
+        const stars = n=>'★'.repeat(n)+'☆'.repeat(5-n);
+        const featured = cms.testimonials.find(t=>t.featured)||cms.testimonials[0];
+        const others   = cms.testimonials.filter(t=>t!==featured);
+        grid.innerHTML = `
+          <div class="tcard feat">
+            <div class="tcard-stars">${stars(featured.stars)}</div>
+            <p class="tcard-text">"${featured.text}"</p>
+            <span class="tcard-author">${featured.author}</span>
+          </div>
+          ${others.map(t=>`
+            <div class="tcard">
+              <div class="tcard-stars">${stars(t.stars)}</div>
+              <p class="tcard-text">"${t.text}"</p>
+              <span class="tcard-author">${t.author}</span>
+            </div>`).join('')}`;
+      }
+    }
+  }
+
+  function getCmsSignature(cms){
+    try { return JSON.stringify(cms); }
+    catch(e){ return ''; }
+  }
+
+  function applyCMSIfChanged(cms){
+    if(!cms || !Object.keys(cms).length) return;
+    const sig = getCmsSignature(cms);
+    if(sig && sig === lastCmsSignature) return;
+    applyCMS(cms);
+    lastCmsSignature = sig;
+  }
+
+  function applyFromLocalCache(){
+    try {
+      const cached = localStorage.getItem(STORE_KEY);
+      if(cached) applyCMSIfChanged(JSON.parse(cached));
+    } catch(e){}
+  }
+
+  function fetchCloudAndApply(){
+    return fetch(JSONBIN_URL, { headers:{ 'X-Master-Key': JSONBIN_KEY } })
+      .then(r=>r.ok ? r.json() : null)
+      .then(json=>{
+        if(!json?.record) return;
+        localStorage.setItem(STORE_KEY, JSON.stringify(json.record)); // update cache
+        applyCMSIfChanged(json.record); // apply cloud updates only when changed
+      })
+      .catch(()=>{}); // silently fall back to cached version
+  }
+
+  // Step 1: apply local cache instantly (no flicker)
+  applyFromLocalCache();
+
+  // Cross-tab instant updates: when admin saves in another tab, this tab updates immediately.
+  window.addEventListener('storage', e=>{
+    if(e.key !== STORE_KEY || !e.newValue) return;
+    try { applyCMSIfChanged(JSON.parse(e.newValue)); } catch(err){}
+  });
+
+  // Step 2: fetch cloud data, then keep polling for near-real-time updates.
+  if(CLOUD_ON){
+    fetchCloudAndApply();
+    setInterval(()=>{
+      if(document.visibilityState === 'visible') fetchCloudAndApply();
+    }, CLOUD_POLL_MS);
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.visibilityState === 'visible') fetchCloudAndApply();
+    });
+  }
+})();
+</script>
+</body>
+</html>
