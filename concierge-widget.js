@@ -106,6 +106,9 @@
     ".footer{padding:6px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom))}",
     "}",
   ].join("");
+  if (/^\/retreat(\/|$)/.test(location.pathname)) {
+    style.textContent += "@media(max-width:640px){.launcher{bottom:176px}}";
+  }
   root.appendChild(style);
 
   var ICON_CHAT =
