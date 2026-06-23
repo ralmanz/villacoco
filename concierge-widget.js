@@ -5,7 +5,7 @@
  *
  * Talks to POST /api/concierge. Uses Shadow DOM so the site's global CSS
  * (border-radius:0, custom cursor, etc.) can't leak in or out.
- * Launcher sits bottom-LEFT to avoid the existing bottom-right .floats.
+ * Launcher stacks above Instagram / WhatsApp (.floats) on the bottom-right.
  */
 (function () {
   if (window.__villaCocoConcierge) return;
@@ -52,12 +52,12 @@
   style.textContent = [
     ":host{all:initial}",
     "*{box-sizing:border-box;font-family:'Lato',sans-serif}",
-    ".launcher{position:fixed;left:24px;bottom:24px;width:58px;height:58px;border-radius:50%;",
+    ".launcher{position:fixed;right:28px;bottom:148px;width:50px;height:50px;border-radius:50%;",
     "background:#1e3a3f;color:#faf8f3;border:none;cursor:pointer;z-index:9000;",
-    "box-shadow:0 6px 22px rgba(28,28,26,.28);display:flex;align-items:center;justify-content:center;transition:transform .18s ease}",
-    ".launcher:hover{transform:scale(1.06)}",
-    ".launcher svg{width:26px;height:26px}",
-    ".panel{position:fixed;left:24px;bottom:24px;width:380px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 48px);",
+    "box-shadow:0 4px 18px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;transition:transform .18s ease,box-shadow .18s ease}",
+    ".launcher:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(0,0,0,.3)}",
+    ".launcher svg{width:22px;height:22px}",
+    ".panel{position:fixed;right:28px;bottom:28px;width:380px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 48px);",
     "background:#faf8f3;z-index:9001;display:none;flex-direction:column;overflow:hidden;",
     "box-shadow:0 18px 50px rgba(28,28,26,.30);border:1px solid #e8e2d8}",
     ".panel.open{display:flex}",
@@ -91,6 +91,11 @@
     ".send:disabled{opacity:.4;cursor:default}",
     ".send svg{width:18px;height:18px}",
     ".footer{text-align:center;font-size:10px;letter-spacing:.1em;color:#6b5c4e;padding:8px;background:#fff}",
+    "@media (max-width:640px){",
+    ".launcher{right:18px;bottom:122px;width:44px;height:44px}",
+    ".launcher svg{width:20px;height:20px}",
+    ".panel{right:18px;bottom:18px;max-height:calc(100vh - 36px)}",
+    "}",
   ].join("");
   root.appendChild(style);
 
