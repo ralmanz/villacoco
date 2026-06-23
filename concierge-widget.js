@@ -84,7 +84,7 @@
     ".typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}",
     "@keyframes b{0%,60%,100%{opacity:.3}30%{opacity:1}}",
     ".inputbar{display:flex;align-items:flex-end;gap:8px;padding:12px;border-top:1px solid #e8e2d8;background:#fff;flex-shrink:0}",
-    "textarea{flex:1;resize:none;border:1px solid #e8e2d8;background:#faf8f3;padding:10px 12px;font-size:14px;",
+    "textarea{flex:1;resize:none;border:1px solid #e8e2d8;background:#faf8f3;padding:10px 12px;font-size:16px;",
     "color:#1c1c1a;outline:none;max-height:96px;line-height:1.4}",
     "textarea:focus{border-color:#b8965a}",
     ".send{width:42px;height:42px;flex-shrink:0;background:#b8965a;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}",
@@ -94,7 +94,16 @@
     "@media (max-width:640px){",
     ".launcher{right:18px;bottom:122px;width:44px;height:44px}",
     ".launcher svg{width:20px;height:20px}",
-    ".panel{right:18px;bottom:18px;max-height:calc(100vh - 36px)}",
+    ".panel{inset:0;width:100%;max-width:none;height:100dvh;max-height:100dvh;",
+    "right:auto;bottom:auto;border:none;box-shadow:none}",
+    ".header{padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top))}",
+    ".msgs{padding:16px 14px;-webkit-overflow-scrolling:touch}",
+    ".bubble{font-size:15px;padding:12px 14px}",
+    ".chip{font-size:15px;padding:12px 14px;min-height:44px}",
+    ".inputbar{padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom))}",
+    "textarea{font-size:16px;line-height:1.45;padding:12px;-webkit-text-size-adjust:100%}",
+    ".send{width:44px;height:44px}",
+    ".footer{padding:6px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom))}",
     "}",
   ].join("");
   root.appendChild(style);
@@ -133,6 +142,42 @@
   var msgsEl = panel.querySelector(".msgs");
   var textarea = panel.querySelector("textarea");
   var sendBtn = panel.querySelector(".send");
+
+  textarea.setAttribute("inputmode", "text");
+  textarea.setAttribute("enterkeyhint", "send");
+  textarea.setAttribute("autocomplete", "off");
+
+  function isMobile() {
+    return window.matchMedia("(max-width: 640px)").matches;
+  }
+
+  function syncPanelToViewport() {
+    if (!open || !isMobile() || !window.visualViewport) return;
+    var vv = window.visualViewport;
+    panel.style.top = vv.offsetTop + "px";
+    panel.style.left = vv.offsetLeft + "px";
+    panel.style.width = vv.width + "px";
+    panel.style.height = vv.height + "px";
+    panel.style.bottom = "auto";
+    panel.style.right = "auto";
+    panel.style.maxHeight = "none";
+    scrollDown();
+  }
+
+  function resetPanelLayout() {
+    panel.style.top = "";
+    panel.style.left = "";
+    panel.style.width = "";
+    panel.style.height = "";
+    panel.style.bottom = "";
+    panel.style.right = "";
+    panel.style.maxHeight = "";
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", syncPanelToViewport);
+    window.visualViewport.addEventListener("scroll", syncPanelToViewport);
+  }
 
   function scrollDown() {
     msgsEl.scrollTop = msgsEl.scrollHeight;
@@ -222,7 +267,7 @@
       addBubble("bot", "I'm having trouble connecting right now. Please try again in a moment.");
     } finally {
       setLoading(false);
-      textarea.focus();
+      if (!isMobile()) textarea.focus();
     }
   }
 
@@ -231,9 +276,21 @@
     open = state != null ? state : !open;
     panel.classList.toggle("open", open);
     launcher.style.display = open ? "none" : "flex";
+    if (isMobile()) {
+      document.documentElement.style.overflow = open ? "hidden" : "";
+      document.body.style.overflow = open ? "hidden" : "";
+    }
     if (open) {
       firstOpen();
-      textarea.focus();
+      requestAnimationFrame(syncPanelToViewport);
+      // Avoid auto-focus on mobile — iOS zooms when inputs <16px get focus on open.
+      if (!isMobile()) textarea.focus();
+    } else {
+      resetPanelLayout();
+      if (isMobile()) {
+        document.documentElement.style.overflow = "";
+        document.body.style.overflow = "";
+      }
     }
   }
 
