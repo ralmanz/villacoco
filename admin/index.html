@@ -441,13 +441,13 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
           <div class="field">
             <label>Phone number (display)</label>
             <input type="text" id="set-phone" placeholder="+507 6858 3330">
-            <small>Shown in the footer address block if you include it there.</small>
+            <small>Shown in the footer and used for telephone links.</small>
           </div>
         </div>
         <div class="field">
           <label>Email address</label>
           <input type="email" id="set-email" placeholder="relax@villacocopanama.com">
-          <small>Used for package enquiries and email links.</small>
+          <small>Used for package enquiries, email links, and the footer.</small>
         </div>
       </div>
       <div class="form-section">
@@ -898,14 +898,14 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
     <!-- FOOTER -->
     <div class="page" id="page-footer">
       <div class="top-bar">
-        <div class="top-bar-left"><div class="page-title">Footer</div><div class="page-sub">Contact details and copyright text.</div></div>
+        <div class="top-bar-left"><div class="page-title">Footer</div><div class="page-sub">Footer copy and physical address. Email and phone are managed in Contact &amp; Booking.</div></div>
         <div class="top-bar-actions"><button class="btn btn-primary" onclick="saveAll()">Save Changes</button></div>
       </div>
       <div class="form-section">
         <div class="form-section-title">Footer Content</div>
         <div class="field"><label>Logo text</label><input type="text" id="footer-logo" placeholder="Villa Coco"></div>
         <div class="field"><label>Tagline</label><textarea id="footer-desc" rows="2"></textarea></div>
-        <div class="field"><label>Address (use &lt;br&gt; for line breaks)</label><textarea id="footer-address" rows="6"></textarea></div>
+        <div class="field"><label>Physical address (use &lt;br&gt; for line breaks)</label><textarea id="footer-address" rows="4" placeholder="Via Catalina Farms&#10;Santa Catalina&#10;Veraguas, Panamá"></textarea><small>Do not include email or phone here — use Contact &amp; Booking.</small></div>
         <div class="field"><label>Copyright text</label><input type="text" id="footer-copy" placeholder="© 2025 Villa Coco Panama — All rights reserved"></div>
       </div>
     </div>
@@ -1131,7 +1131,7 @@ const DEFAULTS = {
   footer: {
     logo:'Villa Coco',
     desc:'A boutique hotel built with passion by a Panamanian–Swiss family. Santa Catalina, Panama\'s Pacific coast.',
-    address:'Via Catalina Farms<br>Santa Catalina<br>Veraguas, Panamá<br><br>relax@villacocopanama.com<br>+507 6858 3330',
+    address:'Via Catalina Farms<br>Santa Catalina<br>Veraguas, Panamá',
     copy:'© 2025 Villa Coco Panama — All rights reserved'
   },
   videos: {
@@ -1792,7 +1792,7 @@ function renderSeo(){
 function renderFooter(){
   const f = data.footer||{};
   val('footer-logo', f.logo); val('footer-desc', f.desc);
-  val('footer-address', f.address); val('footer-copy', f.copy);
+  val('footer-address', VillaCocoCMS.extractPhysicalAddress(f.address || '')); val('footer-copy', f.copy);
 }
 
 function renderMarketingOverview(){
@@ -2049,7 +2049,7 @@ function collectAll(){
   // Footer
   data.footer = {
     logo:    g('footer-logo'),  desc: document.getElementById('footer-desc')?.value||'',
-    address: document.getElementById('footer-address')?.value||'',
+    address: VillaCocoCMS.extractPhysicalAddress(document.getElementById('footer-address')?.value||''),
     copy:    g('footer-copy')
   };
   data.videos = {

@@ -1048,7 +1048,7 @@ footer { background:var(--bark); padding:76px 72px 36px; }
     </div>
     <div class="foot-col">
       <h5>Find Us</h5>
-      <address id="cms-footer-address">Via Catalina Farms<br>Santa Catalina<br>Veraguas, Panamá<br><br>relax@villacocopanama.com<br>+507 6858 3330</address>
+      <address id="cms-footer-address"><span id="cms-footer-physical">Via Catalina Farms<br>Santa Catalina<br>Veraguas, Panamá</span><br><br><a href="mailto:relax@villacocopanama.com" class="cms-email-link" id="cms-footer-email">relax@villacocopanama.com</a><br><a href="tel:+50768583330" class="cms-tel-link" id="cms-footer-phone">+507 6858 3330</a></address>
     </div>
   </div>
   <div class="foot-btm">
@@ -1128,8 +1128,13 @@ function applySiteSettings(settings){
   document.querySelectorAll('.cms-book-link').forEach(a=>{ a.href = book; });
   document.querySelectorAll('.cms-wa-link').forEach(a=>{ a.href = wa || '#'; });
   document.querySelectorAll('.cms-email-link').forEach(a=>{ a.href = mail || '#'; });
+  document.querySelectorAll('.cms-tel-link').forEach(a=>{ a.href = VillaCocoCMS.telUrl(cmsSettings.phone) || '#'; });
   document.querySelectorAll('.cms-ig-link').forEach(a=>{ a.href = ig; });
   document.querySelectorAll('.cms-fb-link').forEach(a=>{ a.href = fb; });
+  const footerEmail = document.getElementById('cms-footer-email');
+  if(footerEmail && cmsSettings.email) footerEmail.textContent = cmsSettings.email;
+  const footerPhone = document.getElementById('cms-footer-phone');
+  if(footerPhone && cmsSettings.phone) footerPhone.textContent = cmsSettings.phone;
 }
 
 function renderRooms(rooms){
@@ -1591,7 +1596,8 @@ function applyCMS(cms){
     const f = cms.footer;
     const lg = document.getElementById('cms-footer-logo'); if(lg && f.logo) lg.textContent = f.logo;
     const dc = document.getElementById('cms-footer-desc'); if(dc && f.desc) dc.textContent = f.desc;
-    const ad = document.getElementById('cms-footer-address'); if(ad && f.address) ad.innerHTML = sanitizeInlineHTML(f.address);
+    const phys = document.getElementById('cms-footer-physical');
+    if(phys && f.address) phys.innerHTML = sanitizeInlineHTML(VillaCocoCMS.extractPhysicalAddress(f.address));
     const cp = document.getElementById('cms-footer-copy'); if(cp && f.copy) cp.textContent = f.copy;
   }
 

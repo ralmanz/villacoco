@@ -127,6 +127,47 @@
     return value ? 'mailto:' + value : '';
   }
 
+  function telUrl(phone) {
+    var value = String(phone || '').trim();
+    if (!value) return '';
+    var digits = value.replace(/\D/g, '');
+    return digits ? 'tel:+' + digits : '';
+  }
+
+  function stripHtmlText(line) {
+    return String(line || '').replace(/<[^>]+>/g, '').trim();
+  }
+
+  function splitAddressLines(addressHtml) {
+    return String(addressHtml || '')
+      .replace(/\r\n/g, '\n')
+      .split(/<br\s*\/?>/gi)
+      .map(function (line) { return line.trim(); });
+  }
+
+  function isEmailLine(line) {
+    var text = stripHtmlText(line);
+    return text.indexOf('@') !== -1 && text.indexOf('.') !== -1;
+  }
+
+  function isPhoneLine(line) {
+    var text = stripHtmlText(line);
+    if (!text) return false;
+    var digits = text.replace(/\D/g, '');
+    return digits.length >= 7 && /^[\d\s+\-().]+$/.test(text);
+  }
+
+  /** Strip legacy email/phone lines from combined footer.address values. */
+  function extractPhysicalAddress(addressHtml) {
+    var lines = splitAddressLines(addressHtml);
+    while (lines.length && !stripHtmlText(lines[lines.length - 1])) lines.pop();
+    while (lines.length && (isEmailLine(lines[lines.length - 1]) || isPhoneLine(lines[lines.length - 1]))) {
+      lines.pop();
+    }
+    while (lines.length && !stripHtmlText(lines[lines.length - 1])) lines.pop();
+    return lines.join('<br>');
+  }
+
   function isDevHost() {
     var host = global.location && global.location.hostname;
     if (!host) return false;
@@ -144,6 +185,8 @@
     applyThemeToRoot: applyThemeToRoot,
     whatsAppUrl: whatsAppUrl,
     mailtoUrl: mailtoUrl,
+    telUrl: telUrl,
+    extractPhysicalAddress: extractPhysicalAddress,
     isDevHost: isDevHost,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
