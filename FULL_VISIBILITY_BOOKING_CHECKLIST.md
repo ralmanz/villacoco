@@ -39,7 +39,6 @@ Use this as the execution checklist to move from "good website" to a full direct
 ## Phase 4: Direct Booking Growth Operations
 
 - [x] Inquiry Toolkit templates in admin
-- [x] Content Studio AI copy generation
 - [ ] Add weekly publishing planner (3-post cadence)
 - [ ] Add monthly SEO task queue in admin (operational reminders)
 - [ ] Add monthly performance snapshot export (PDF or markdown)

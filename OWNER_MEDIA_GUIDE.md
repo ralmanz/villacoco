@@ -4,28 +4,27 @@ This guide explains what image/video links the website accepts and how to prepar
 
 ## What links are accepted in admin
 
-The admin currently accepts **public direct URLs** over `https://` (or `http://`).
+The fastest path is **Upload image** in admin (JPG, PNG, or WebP, 10 MB or smaller). Preview appears immediately. Click **Save All Changes** to publish.
 
-Use links that point directly to the file, not preview pages.
+You can still paste a **public direct URL** over `https://` (or `http://`) if the photo already lives elsewhere.
 
-- Good: `https://cdn.example.com/images/hero-sunrise.jpg`
+- Good: upload in admin, or `https://cdn.example.com/images/hero-sunrise.jpg`
 - Risky: Dropbox/Google Drive preview/share pages
 - Not allowed: private/auth-required URLs
 
-If a link does not show in preview, it is usually not a direct file URL.
+If a pasted link does not show in preview, it is usually not a direct file URL. Existing saved links keep working; they are not rewritten automatically.
 
 ## Recommended media hosting
 
-Best option: **Cloudflare Images** (or Cloudflare R2 + public CDN URL).
+Best option: **Upload image** in the Villa Coco admin.
 
 Why:
--
- Fast global delivery
-- Stable links
-- Fits current Cloudflare setup
-- Easy long-term control
+- The file is stored with the website (one original)
+- The owner never needs a separate image host
+- Links stay stable (`/media/...` on this site)
+- Later image resizing can use that same original without re-uploading
 
-Alternative: Cloudinary (also very good).
+Pasting an existing public URL remains a fallback.
 
 ## Image format and quality standards
 
@@ -101,12 +100,11 @@ Avoid spaces and random upload names like `IMG_9384.JPG`.
 
 ## Quick owner workflow
 
-1. Upload optimized images to Cloudflare Images/R2.
-2. Copy the public direct URL.
-3. Paste URL in admin field.
-4. Confirm preview appears.
-5. Click **Save Changes** in that section (or **Save All Changes**).
-6. Refresh homepage and mobile view to verify.
+1. In admin, click **Upload image** for that section (Hero, Story, rooms, gallery, etc.).
+2. Confirm the preview appears.
+3. Click **Save Changes** in that section (or **Save All Changes**).
+4. Refresh homepage and mobile view to verify.
+5. Optional fallback: paste a public image URL instead of uploading.
 
 ## QA checklist before publishing new media
 

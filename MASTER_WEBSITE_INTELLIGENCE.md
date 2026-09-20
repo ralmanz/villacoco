@@ -98,6 +98,9 @@ In Pages project `villacoco`:
 - KV binding:
   - variable: `VILLA_COCO_CMS`
   - value: the Villa Coco KV namespace
+- R2 binding:
+  - variable: `VILLA_COCO_MEDIA`
+  - value: the Villa Coco media bucket
 
 ---
 
@@ -163,14 +166,17 @@ Note: lightweight first-party analytics, not GA4-equivalent attribution.
 ## 11) Media Policy (Owner Content)
 
 Accepted URLs:
-- public direct `https://...` file URLs
+- new admin uploads: canonical `/media/<key>` from the `VILLA_COCO_MEDIA` R2 bucket
+- existing public `https://...` file URLs (including previously saved remote or Cloudflare Images URLs)
 
 Avoid:
 - Dropbox/Drive preview links
 - private/authenticated URLs
+- storing size-specific transformation URLs in CMS
 
 Recommended hosting:
-- Cloudflare Images or Cloudflare R2 public URLs
+- Admin **Upload image** → R2 original → `/media/<key>`
+- Optional later delivery wrappers such as `/cdn-cgi/image/width=1600,quality=80/media/<key>` without rewriting CMS content
 
 Reference standards:
 - see `OWNER_MEDIA_GUIDE.md`
@@ -234,9 +240,10 @@ Use `LAUNCH_DAY_SOP.md` as step-by-step script.
 ## 16) Recommended Next Improvements
 
 - Add GA4 + Search Console integration
-- Add built-in media uploader to Cloudflare Images/R2
+- Optionally wrap `/media/<key>` with Cloudflare image transformations (keep one R2 original)
 - Add admin audit trail/version history for content edits
 - Add automated backup/export of KV content
+- Later: orphan R2 cleanup for replaced objects kept for CMS history
 
 ---
 

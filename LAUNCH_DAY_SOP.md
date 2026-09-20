@@ -9,6 +9,7 @@ Use this checklist during official go-live.
 - Confirm latest code is deployed to Pages project: `villacoco`
 - Confirm Cloudflare bindings/env:
   - `VILLA_COCO_CMS` (KV binding)
+  - `VILLA_COCO_MEDIA` (R2 binding for admin image uploads)
   - `ADMIN_PASSWORD`
   - `OPENAI_API_KEY` (Coco concierge)
   - `OPENAI_MODEL` (optional; defaults to `gpt-5.6-luna`)

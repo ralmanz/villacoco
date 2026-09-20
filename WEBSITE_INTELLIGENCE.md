@@ -20,7 +20,8 @@ Use it for ownership handoff, deployment, troubleshooting, and future updates.
 
 - `index.html` -> main website frontend
 - `admin/index.html` -> CMS admin panel
-- `functions/api/cms.js` -> CMS API (auth, save, revert, analytics)
+- `functions/api/cms.js` -> CMS API (auth, save, revert, analytics, R2 uploads)
+- `functions/media/[[key]].js` -> public R2 media delivery (`GET`/`HEAD` `/media/<key>`)
 - `functions/[[path]].js` -> server-side SEO HTML injection for homepage
 - `_redirects` -> admin routing
 - `_routes.json` -> Pages Functions route scope
@@ -45,6 +46,9 @@ In Pages project (`villacoco`) -> Settings:
 - KV binding:
   - **Variable name:** `VILLA_COCO_CMS`
   - **Value:** your KV namespace
+- R2 binding:
+  - **Variable name:** `VILLA_COCO_MEDIA`
+  - **Value:** the Villa Coco media bucket
 
 ---
 
@@ -148,8 +152,10 @@ Special logic:
 See full guide: `OWNER_MEDIA_GUIDE.md`
 
 Key policy:
-- Use public direct file URLs (`https://...`), not preview/share pages.
-- Recommended hosting: Cloudflare Images or Cloudflare R2 public URLs.
+- Prefer **Upload image** in admin. New files are stored as `/media/<key>` (one R2 original).
+- Existing public `https://...` URLs remain valid, including previously saved remote or Cloudflare Images URLs.
+- Do not store size-specific transformation URLs. Later `/cdn-cgi/image/...` wrappers can use the same `/media/<key>` source.
+- Avoid preview/share pages (Dropbox/Drive).
 
 ---
 
@@ -209,7 +215,8 @@ Key policy:
 ## 13) Recommended Next Improvements
 
 - Add GA4 and Search Console for enterprise-grade SEO/traffic reporting
-- Add image upload helper (direct to Cloudflare Images/R2) inside admin
+- Optionally wrap `/media/<key>` with Cloudflare image transformations for hero/cards/thumbnails (do not rewrite CMS URLs)
 - Add role-based admin access and audit trail
 - Add scheduled KV backups/export
+- Later: orphan R2 cleanup for replaced objects still kept for CMS history
 

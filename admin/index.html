@@ -220,9 +220,6 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
 .marketing-checklist { list-style:none; display:flex; flex-direction:column; gap:10px; }
 .marketing-checklist li { font-size:.76rem; color:#555; display:flex; align-items:center; gap:10px; }
 .marketing-checklist input { accent-color:var(--gold); }
-.studio-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.studio-output { min-height:240px; }
-.studio-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
 .hint-text { font-size:.68rem; color:#999; margin-top:8px; }
 
 @media (max-width:900px){
@@ -232,7 +229,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
   .analytics-grid { grid-template-columns:1fr 1fr; }
   .analytics-tables { grid-template-columns:1fr; }
   .docs-grid { grid-template-columns:1fr; }
-  .marketing-grid, .studio-grid { grid-template-columns:1fr; }
+  .marketing-grid { grid-template-columns:1fr; }
   .marketing-kpis { grid-template-columns:1fr 1fr; }
   .theme-grid { grid-template-columns:1fr; }
   .top-bar-actions { width:100%; justify-content:flex-start; flex-wrap:wrap; }
@@ -360,10 +357,6 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
       <div class="nav-item" data-page="seo">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         SEO Manager
-      </div>
-      <div class="nav-item" data-page="content-studio">
-        <svg viewBox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v12H5V8zm2 2v2h10v-2H7zm0 4v2h7v-2H7z"/></svg>
-        Content Studio
       </div>
       <div class="nav-item" data-page="inquiry-toolkit">
         <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 9H6V9h12v2zm0-3H6V6h12v2zm-7 6H6v-2h5v2z"/></svg>
@@ -513,66 +506,6 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
         <div class="analytics-table">
           <h4>Last 14 Days (V / U / C)</h4>
           <ul class="analytics-list" id="analytics-daily"></ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- CONTENT STUDIO -->
-    <div class="page" id="page-content-studio">
-      <div class="top-bar">
-        <div class="top-bar-left">
-          <div class="page-title">Content Studio</div>
-          <div class="page-sub">Generate Instagram captions and Google Business copy from one photo description.</div>
-        </div>
-      </div>
-      <div class="studio-grid">
-        <div class="form-section">
-          <div class="form-section-title">Prompt Inputs</div>
-          <div class="field">
-            <label>Photo Description</label>
-            <textarea id="cs-photo-desc" rows="6" placeholder="Describe the photo, mood, and what happened."></textarea>
-          </div>
-          <div class="form-row">
-            <div class="field">
-              <label>Platform</label>
-              <select id="cs-platform">
-                <option value="instagram">Instagram Caption</option>
-                <option value="google-business">Google Business Post</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Tone</label>
-              <select id="cs-tone">
-                <option value="warm">Warm</option>
-                <option value="luxury">Luxury</option>
-                <option value="playful">Playful</option>
-                <option value="informative">Informative</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label>Call To Action (optional)</label>
-            <input type="text" id="cs-cta" placeholder="Book direct via WhatsApp for best rates.">
-          </div>
-          <div class="field">
-            <label>Keywords (optional)</label>
-            <input type="text" id="cs-keywords" placeholder="yoga retreat panama, boutique hotel santa catalina">
-          </div>
-          <div class="studio-actions">
-            <button class="btn btn-primary" id="cs-generate-btn" onclick="generateContentStudio()">Generate Copy</button>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-title">Generated Copy</div>
-          <div class="field">
-            <label>Output</label>
-            <textarea id="cs-output" class="studio-output" placeholder="Generated copy appears here..." readonly></textarea>
-          </div>
-          <div class="studio-actions">
-            <button class="btn btn-outline" onclick="copyGeneratedContent()">Copy Text</button>
-            <button class="btn btn-outline" onclick="saveGeneratedAsTemplate()">Save As Template</button>
-          </div>
-          <div class="hint-text">Uses Anthropic via secure server-side function when configured.</div>
         </div>
       </div>
     </div>
@@ -819,7 +752,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
     <!-- GALLERY -->
     <div class="page" id="page-gallery">
       <div class="top-bar">
-        <div class="top-bar-left"><div class="page-title">Gallery</div><div class="page-sub">The expandable photo strip. Upload to Cloudflare Images or paste a URL. Five photos recommended.</div></div>
+        <div class="top-bar-left"><div class="page-title">Gallery</div><div class="page-sub">The expandable photo strip. Upload an image or paste a URL. Five photos recommended.</div></div>
         <div class="top-bar-actions"><button class="btn btn-outline" onclick="addGalleryItem()">+ Add Photo</button><button class="btn btn-primary" onclick="saveAll()">Save Changes</button></div>
       </div>
       <div id="gallery-list"></div>
@@ -1768,7 +1701,7 @@ function renderGallery(){
       <div class="form-row">
         <div class="field">
           <label>Photo</label>
-          <small class="field-hint">Upload stores on Cloudflare Images. You can still paste any image URL.</small>
+          <small class="field-hint">Upload an image, or paste any existing image URL.</small>
           <div class="gallery-photo-actions">
             <input type="url" id="gal-url-${i}" value="${escapeAttr(g.url||'')}" placeholder="https://…">
             <input type="file" id="gal-file-${i}" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleGalleryImageUpload(${i},this)">
@@ -1902,10 +1835,12 @@ async function handleImageUpload(inputId, previewId, fileInput){
   }
   toast('Uploading image…', 'info');
   try{
-    const res = await fetchCms('images-direct-upload', {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetchCms('upload-media', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', 'X-Admin-Password': sessionPassword },
-      body:'{}'
+      headers:{ 'X-Admin-Password': sessionPassword },
+      body: fd
     });
     if(!res) throw new Error('CMS API not reachable');
     const j = await res.json().catch(()=>({}));
@@ -1915,23 +1850,9 @@ async function handleImageUpload(inputId, previewId, fileInput){
       return;
     }
     if(!res.ok){
-      throw new Error(j.error || 'Could not start upload');
+      throw new Error(j.error || 'Could not upload image');
     }
-    const uploadURL = j.uploadURL;
-    if(!uploadURL) throw new Error('Missing upload URL from server');
-    const fd = new FormData();
-    fd.append('file', file);
-    const up = await fetch(uploadURL, { method:'POST', body: fd });
-    const upJ = await up.json().catch(()=>({}));
-    if(!up.ok || upJ.success === false){
-      const err = (upJ.errors||[]).map(e=>e.message).join('; ') || upJ.error || ('Upload failed ('+up.status+')');
-      throw new Error(err);
-    }
-    const variants = upJ.result && upJ.result.variants;
-    let finalUrl = '';
-    if(Array.isArray(variants) && variants.length){
-      finalUrl = variants.find(u=>/\/public(\?|$)/i.test(String(u))) || variants[0];
-    }
+    const finalUrl = typeof j.url === 'string' ? j.url.trim() : '';
     if(!finalUrl) throw new Error('Upload succeeded but no image URL was returned.');
     const urlIn = document.getElementById(inputId);
     if(urlIn) urlIn.value = finalUrl;
@@ -2249,91 +2170,6 @@ async function loadSeoHealthStatus(showToast = false){
     if(statusEl) statusEl.textContent = 'Auto checks unavailable (network error).';
     if(showToast) toast('Could not refresh SEO auto checks.', 'error');
   }
-}
-
-async function generateContentStudio(){
-  if(!apiReachable){
-    toast('AI content generation requires a connection to the website backend.', 'error');
-    return;
-  }
-  const btn = document.getElementById('cs-generate-btn');
-  const out = document.getElementById('cs-output');
-  const photoDescription = document.getElementById('cs-photo-desc')?.value?.trim() || '';
-  const platform = document.getElementById('cs-platform')?.value || 'instagram';
-  const tone = document.getElementById('cs-tone')?.value || 'warm';
-  const cta = document.getElementById('cs-cta')?.value?.trim() || '';
-  const keywords = document.getElementById('cs-keywords')?.value?.trim() || '';
-  if(!photoDescription){
-    toast('Please describe the photo first.', 'error');
-    return;
-  }
-  if(btn){ btn.disabled = true; btn.textContent = 'Generating...'; }
-  if(out) out.value = '';
-  try{
-    const res = await fetchCms('generate-content', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'X-Admin-Password': sessionPassword },
-      body: JSON.stringify({ photoDescription, platform, tone, cta, keywords })
-    });
-    if(!res){
-      toast('Could not reach AI generation endpoint.', 'error');
-      return;
-    }
-    const payload = await res.json().catch(()=>({}));
-    if(!res.ok || !payload?.text){
-      toast(payload?.error || 'Generation failed.', 'error');
-      return;
-    }
-    if(out) out.value = payload.text;
-    toast('Content generated.', 'success');
-  }catch(e){
-    toast('Generation failed.', 'error');
-  }finally{
-    if(btn){ btn.disabled = false; btn.textContent = 'Generate Copy'; }
-  }
-}
-
-async function copyGeneratedContent(){
-  const out = document.getElementById('cs-output');
-  const text = out?.value || '';
-  if(!text.trim()){
-    toast('Nothing to copy yet.', 'info');
-    return;
-  }
-  try{
-    await navigator.clipboard.writeText(text);
-    toast('Copied to clipboard.', 'success');
-  }catch(e){
-    toast('Copy failed. Select text and copy manually.', 'error');
-  }
-}
-
-function saveGeneratedAsTemplate(){
-  const out = document.getElementById('cs-output');
-  const generated = out?.value?.trim() || '';
-  if(!generated){
-    toast('Generate content before saving a template.', 'info');
-    return;
-  }
-  const platform = document.getElementById('cs-platform')?.value || 'instagram';
-  const defaultTitle = platform === 'google-business' ? 'Google Business Post' : 'Instagram Caption';
-  const enteredTitle = window.prompt('Template title:', defaultTitle);
-  if(enteredTitle === null) return;
-  const title = enteredTitle.trim() || defaultTitle;
-  const channel = platform === 'google-business' ? 'email' : 'whatsapp';
-  const subject = channel === 'email' ? title : '';
-
-  collectAll();
-  if(!data.marketing) data.marketing = {};
-  if(!data.marketing.inquiryTemplates) data.marketing.inquiryTemplates = [];
-  data.marketing.inquiryTemplates.unshift({
-    channel,
-    title,
-    subject,
-    body: generated
-  });
-  renderInquiryToolkit();
-  toast('Template added to Inquiry Toolkit. Save changes to publish.', 'success');
 }
 
 /* ═══════════════════════════════════════
