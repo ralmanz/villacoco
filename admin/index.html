@@ -553,7 +553,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
             <button type="button" class="btn btn-outline" onclick="clearImageField('hero-img','hero-img-preview')">Remove</button>
           </div>
           <details class="img-field-advanced"><summary>Paste image link instead</summary>
-            <input type="url" id="hero-img" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+            <input type="text" id="hero-img" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
           </details>
           <img id="hero-img-preview" class="img-preview" src="" alt="" onerror="this.style.display='none'" style="display:none;">
         </div>
@@ -594,7 +594,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
             <button type="button" class="btn btn-outline" onclick="clearImageField('story-img','story-img-preview')">Remove</button>
           </div>
           <details class="img-field-advanced"><summary>Paste image link instead</summary>
-            <input type="url" id="story-img" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+            <input type="text" id="story-img" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
           </details>
           <img id="story-img-preview" class="img-preview" src="" alt="" onerror="this.style.display='none'" style="display:none;">
         </div>
@@ -652,7 +652,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
             <button type="button" class="btn btn-outline" onclick="clearImageField('pool-img','pool-img-preview')">Remove</button>
           </div>
           <details class="img-field-advanced"><summary>Paste image link instead</summary>
-            <input type="url" id="pool-img" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+            <input type="text" id="pool-img" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
           </details>
           <img id="pool-img-preview" class="img-preview" src="" onerror="this.style.display='none'" style="display:none;">
         </div>
@@ -705,7 +705,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
             <button type="button" class="btn btn-outline" onclick="clearImageField('food-img','food-img-preview')">Remove</button>
           </div>
           <details class="img-field-advanced"><summary>Paste image link instead</summary>
-            <input type="url" id="food-img" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+            <input type="text" id="food-img" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
           </details>
           <img id="food-img-preview" class="img-preview" src="" onerror="this.style.display='none'" style="display:none;">
         </div>
@@ -786,7 +786,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
         <div class="form-section-title">Social Share Image (Open Graph)</div>
         <div class="field">
           <label>Share Image URL</label>
-          <input type="url" id="seo-ogimage" placeholder="https://..." oninput="updateSeoPreview()">
+          <input type="text" id="seo-ogimage" placeholder="https://... or /media/..." oninput="updateSeoPreview()">
           <small>Used when your site is shared on WhatsApp, Facebook, Instagram. Recommended: 1200×630px.</small>
         </div>
         <img id="seo-img-preview" class="img-preview" src="" onerror="this.style.display='none'" style="display:none;">
@@ -821,7 +821,7 @@ html, body { height:100%; font-family:var(--sans); background:var(--cream); colo
             <button type="button" class="btn btn-outline" onclick="clearImageField('cta-img','cta-img-preview')">Remove</button>
           </div>
           <details class="img-field-advanced"><summary>Paste image link instead</summary>
-            <input type="url" id="cta-img" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+            <input type="text" id="cta-img" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
           </details>
           <img id="cta-img-preview" class="img-preview" src="" onerror="this.style.display='none'" style="display:none;">
         </div>
@@ -1538,7 +1538,7 @@ function renderRooms(){
           <button type="button" class="btn btn-outline" onclick="clearImageField('room-img-${i}','room-img-prev-${i}')">Remove</button>
         </div>
         <details class="img-field-advanced"><summary>Paste image link instead</summary>
-          <input type="url" id="room-img-${i}" value="${escapeAttr(r.img||'')}" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+          <input type="text" id="room-img-${i}" value="${escapeAttr(r.img||'')}" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
         </details>
         <img id="room-img-prev-${i}" class="img-preview" src="${escapeAttr(r.img||'')}" alt="" style="display:${(r.img||'').trim()?'block':'none'}" onerror="this.style.display='none'">
       </div>
@@ -1569,7 +1569,7 @@ function renderExperiences(){
           <button type="button" class="btn btn-outline" onclick="clearImageField('exp-img-${i}','exp-img-prev-${i}')">Remove</button>
         </div>
         <details class="img-field-advanced"><summary>Paste image link instead</summary>
-          <input type="url" id="exp-img-${i}" value="${escapeAttr(e.img||'')}" placeholder="https://..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
+          <input type="text" id="exp-img-${i}" value="${escapeAttr(e.img||'')}" placeholder="https://... or /media/..." style="width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--mist);background:var(--cream);">
         </details>
         <img id="exp-img-prev-${i}" class="img-preview" src="${escapeAttr(e.img||'')}" alt="" style="display:${(e.img||'').trim()?'block':'none'}" onerror="this.style.display='none'">
       </div>
@@ -1703,7 +1703,7 @@ function renderGallery(){
           <label>Photo</label>
           <small class="field-hint">Upload an image, or paste any existing image URL.</small>
           <div class="gallery-photo-actions">
-            <input type="url" id="gal-url-${i}" value="${escapeAttr(g.url||'')}" placeholder="https://…">
+            <input type="text" id="gal-url-${i}" value="${escapeAttr(g.url||'')}" placeholder="https://… or /media/…">
             <input type="file" id="gal-file-${i}" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleGalleryImageUpload(${i},this)">
             <button type="button" class="btn btn-outline" onclick="document.getElementById('gal-file-${i}').click()">Upload image</button>
           </div>
