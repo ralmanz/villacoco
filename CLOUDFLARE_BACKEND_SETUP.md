@@ -24,6 +24,15 @@ Optional:
 
 - `ALLOWED_ORIGINS` (comma-separated origins)
 
+### Coco concierge (OpenAI)
+
+The public concierge at `/api/concierge` uses OpenAI server-side. Add:
+
+- **`OPENAI_API_KEY`** — OpenAI API key (Pages secret). Never expose this in the browser.
+- **`OPENAI_MODEL`** — optional model override (default `gpt-5.6-luna`). Use this to switch Coco to another model later without a code change.
+
+If `OPENAI_API_KEY` is missing, guests see a generic unavailable message.
+
 ### Gallery uploads (Cloudflare Images)
 
 The admin **Gallery** can upload JPG, PNG, or WebP via **Direct Creator Upload**. Add:

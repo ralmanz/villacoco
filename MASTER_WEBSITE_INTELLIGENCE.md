@@ -88,6 +88,8 @@ In Pages project `villacoco`:
 
 ### Variables
 - `ADMIN_PASSWORD`
+- `OPENAI_API_KEY` (Coco concierge; server-side only)
+- `OPENAI_MODEL` (optional; default `gpt-5.6-luna`)
 - `ALLOWED_ORIGINS` (recommended), e.g.:
   - `https://villacoco.pages.dev`
   - add final domain(s) at launch

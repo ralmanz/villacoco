@@ -10,6 +10,8 @@ Use this checklist during official go-live.
 - Confirm Cloudflare bindings/env:
   - `VILLA_COCO_CMS` (KV binding)
   - `ADMIN_PASSWORD`
+  - `OPENAI_API_KEY` (Coco concierge)
+  - `OPENAI_MODEL` (optional; defaults to `gpt-5.6-luna`)
   - `ALLOWED_ORIGINS` includes final domain(s)
 - Confirm admin login works at `/admin`
 - Confirm SEO values are finalized in admin

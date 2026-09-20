@@ -35,6 +35,8 @@ In Pages project (`villacoco`) -> Settings:
 
 ### Environment variables
 - `ADMIN_PASSWORD` = admin login password
+- `OPENAI_API_KEY` = Coco concierge (server-side only)
+- `OPENAI_MODEL` = optional Coco model override (default `gpt-5.6-luna`)
 - `ALLOWED_ORIGINS` = allowed origins (comma-separated), for example:
   - `https://villacoco.pages.dev`
   - plus custom domain(s) once launched

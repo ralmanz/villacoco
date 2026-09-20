@@ -3,56 +3,53 @@
  * Deploy to: functions/api/concierge.js   →   route POST /api/concierge
  *
  * Public, UNauthenticated endpoint. Security = rate limiting + input caps,
- * NOT the admin password. The Anthropic key stays server-side and never
+ * NOT the admin password. The OpenAI key stays server-side and never
  * reaches the browser.
  *
  * Requires:
- *   - env.ANTHROPIC_API_KEY   (Pages secret; same one the admin AI uses)
- *   - env.VILLA_COCO_CMS       (KV binding; used for live facts + rate limit + logs)
+ *   - env.OPENAI_API_KEY       (Pages secret)
+ *   - env.VILLA_COCO_CMS       (KV binding; live facts + rate limit + logs)
  * Optional:
- *   - env.ANTHROPIC_MODEL              (default below — current cheapest Haiku)
- *   - env.ALLOWED_ORIGINS              (comma-separated; mirrors cms.js behavior)
+ *   - env.OPENAI_MODEL                 (default gpt-5.6-luna)
+ *   - env.ALLOWED_ORIGINS              (comma-separated; mirrors cms.js)
  *   - env.CONCIERGE_RATE_LIMIT_PER_MIN (default 15, per IP)
  *   - env.CONCIERGE_LOG                ("false" to disable conversation logging)
  *   - env.CONCIERGE_LOG_TTL_DAYS       (default 60; auto-expires logged chats)
  */
 
-const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
+const DEFAULT_MODEL = "gpt-5.6-luna";
 const MAX_TOKENS = 600;
 const MAX_HISTORY_TURNS = 20;   // cap messages sent to the model (cost guard)
 const MAX_MSG_CHARS = 2000;     // cap per-message length (abuse guard)
+const PROVIDER_TIMEOUT_MS = 20000;
 
 /* ============================================================
-   KNOWLEDGE BASE — edit this with Olivia's real details.
-   This is the source of truth. Live values pulled from the CMS
-   (cms_current) are appended at request time and take priority
-   for anything they cover (rooms, etc.).
+   KNOWLEDGE BASE
+   Only confirmed behavioral rules and property facts that are
+   already public on the live site. Live CMS values are appended
+   at request time and take priority when present.
    ============================================================ */
-const KNOWLEDGE_BASE = `You are "Coco", the friendly digital concierge for Villa Coco, a boutique beachfront property in Panama. You help guests warmly, briefly, and accurately.
+const KNOWLEDGE_BASE = `You are "Coco", the friendly digital concierge for Villa Coco, a boutique hotel in Santa Catalina, Veraguas, on Panama's Pacific coast. You help guests warmly, briefly, and accurately.
 
 LANGUAGE: Detect the language the guest writes in and always reply in that same language (English, Spanish, French, etc.).
 
 STYLE: Warm and concise, like an attentive host. Keep replies short. Don't over-explain.
 
-WHAT YOU KNOW (sample details — replace with real information):
-- About: Villa Coco is a boutique beachfront villa in [AREA], Panama, ideal for couples and small families.
-- Check-in: 3:00 PM. Check-out: 11:00 AM. Early check-in or late check-out may be possible on request, subject to availability.
-- Capacity: sleeps up to [6] guests across [3] bedrooms.
-- Amenities: high-speed WiFi, air conditioning, private pool, fully equipped kitchen, direct beach access, free on-site parking, beach towels and chairs provided.
-- House rules: no smoking indoors, quiet hours after 10:00 PM, no parties or events without prior approval, pets on request only.
-- Getting there: about [X] from Panama City. A trusted private transfer can be arranged on request.
-- Nearby: local restaurants within walking distance (fresh seafood is the specialty), a calm swimming beach a couple of minutes away, and a surf beach a short drive away.
+CONFIRMED FACTS:
+- Villa Coco is a family-run boutique hotel in Santa Catalina, Panama.
+- It has an infinity pool and a restaurant called Ai Mamita.
+- Current rooms, restaurant hours, packages, and contact details may appear in the LIVE DETAILS section. Prefer those when present.
 
-BOOKING INQUIRIES: You cannot confirm reservations or take payments yourself. When a guest wants to book or asks about availability for specific dates: collect their desired dates, number of guests, and a contact (name plus email or WhatsApp), warmly confirm you've noted the request, and let them know the host will follow up shortly to confirm and arrange payment. Never say a booking is confirmed.
+BOOKING INQUIRIES: You cannot confirm reservations or take payments yourself. When a guest wants to book or asks about availability for specific dates: use the official booking link from LIVE DETAILS if one is provided; also collect their desired dates, number of guests, and a contact (name plus email or WhatsApp). Warmly confirm you've noted the request and that the host will follow up to confirm and arrange payment. Never say a booking is confirmed.
 
-THE RETREAT (currently being promoted):
-- Villa Coco is hosting a yoga & wellness retreat in Santa Catalina. Full details and reservations are on the retreat page: https://villacoco.pages.dev/retreat/
-- Dates: [ Mar DD–DD, 2026 ]. Price: [ $X,XXX ] per person. A small group — [ 12 ] spots by design.
-- Included: [ X nights ] in the villa sanctuary, daily yoga led by [ facilitator ], all meals (fresh, locally sourced), and ocean/surf excursions.
-- All levels welcome; no prior yoga experience needed.
-- If a guest seems interested in yoga, wellness, or a group stay, you may mention the retreat. To reserve, point them to the retreat page or WhatsApp — collect their name, preferred dates, and a contact, confirm you've noted it, and let them know the host will follow up to confirm and arrange payment. Never confirm a spot or take payment yourself.
+RETREATS: Villa Coco sometimes hosts yoga and wellness retreats. If a guest is interested, point them to https://villacoco.pages.dev/retreat/ or to WhatsApp from LIVE DETAILS. Do not quote retreat dates, prices, capacity, or facilitator names unless those exact details appear in LIVE DETAILS. If they do not, say you do not have those details and offer to connect the guest with the host.
 
-HONESTY: Only use the details you have. If a guest asks something you don't have an answer to, say you'll pass the question to the host rather than guessing. Never invent specifics about the property.`;
+UNKNOWN INFORMATION:
+- If a guest asks something that is not in these instructions or LIVE DETAILS, say you do not have that answer and offer to pass the question to the host using the WhatsApp number or email from LIVE DETAILS.
+- Never invent rooms, prices, distances, travel times, amenities, house rules, check-in or check-out times, guest capacity, or retreat specifics.
+- Never use placeholder text such as [AREA], [X], or any other bracketed sample values.
+
+HONESTY: Only use the details you have. Never invent specifics about the property.`;
 
 /* ---------- helpers ---------- */
 
@@ -90,6 +87,27 @@ function stripTags(s) {
   return String(s).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function resolveModel(env) {
+  const configured = typeof env.OPENAI_MODEL === "string" ? env.OPENAI_MODEL.trim() : "";
+  return configured || DEFAULT_MODEL;
+}
+
+function extractResponseText(data) {
+  if (typeof data?.output_text === "string" && data.output_text.trim()) {
+    return data.output_text.trim();
+  }
+  const parts = [];
+  const output = Array.isArray(data?.output) ? data.output : [];
+  for (const item of output) {
+    if (typeof item?.text === "string" && item.text.trim()) parts.push(item.text);
+    const content = Array.isArray(item?.content) ? item.content : [];
+    for (const block of content) {
+      if (typeof block?.text === "string" && block.text.trim()) parts.push(block.text);
+    }
+  }
+  return parts.join("\n").trim();
+}
+
 // KV-based rate limit. Note: KV is eventually consistent, so this is
 // approximate under bursts — fine here, because the API spend cap is the
 // real backstop. Fails OPEN if KV is unavailable.
@@ -107,6 +125,10 @@ async function withinRateLimit(env, ip, limit) {
   }
 }
 
+function digitsOnly(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
 // Live facts from cms_current. Guarded reads; returns "" if KV empty or parse fails.
 async function liveContext(env) {
   try {
@@ -116,7 +138,6 @@ async function liveContext(env) {
     const cms = JSON.parse(raw);
     const parts = [];
 
-    // CMS room shape: { name, tag, feat, img }
     if (Array.isArray(cms.rooms)) {
       const rooms = cms.rooms
         .slice(0, 12)
@@ -137,6 +158,49 @@ async function liveContext(env) {
 
     const story = cms?.story?.body;
     if (story) parts.push("More about the property: " + stripTags(story).slice(0, 600));
+
+    if (Array.isArray(cms.hours) && cms.hours.length) {
+      const hours = cms.hours
+        .slice(0, 12)
+        .map((h) => {
+          const service = stripTags(h?.service || "");
+          if (!service) return null;
+          if (h?.closed) return `- ${service}: Closed`;
+          const open = stripTags(h?.open || "");
+          const close = stripTags(h?.close || "");
+          if (!open || !close) return null;
+          return `- ${service}: ${open} – ${close}`;
+        })
+        .filter(Boolean);
+      if (hours.length) {
+        const note = cms.hoursNote ? `\nNote: ${stripTags(cms.hoursNote).slice(0, 160)}` : "";
+        parts.push("Restaurant / service hours:\n" + hours.join("\n") + note);
+      }
+    }
+
+    if (Array.isArray(cms.packages) && cms.packages.length) {
+      const pkgs = cms.packages
+        .slice(0, 8)
+        .map((p) => {
+          const name = stripTags(p?.name || "");
+          if (!name) return null;
+          const bits = [];
+          if (p?.for) bits.push(stripTags(p.for));
+          if (p?.price) bits.push("from $" + stripTags(String(p.price)));
+          return `- ${name}${bits.length ? ` (${bits.join(", ")})` : ""}`;
+        })
+        .filter(Boolean);
+      if (pkgs.length) parts.push("Current packages:\n" + pkgs.join("\n"));
+    }
+
+    const settings = cms.settings && typeof cms.settings === "object" ? cms.settings : {};
+    const contact = [];
+    if (settings.bookingUrl) contact.push("Official booking link: " + stripTags(settings.bookingUrl).slice(0, 240));
+    if (settings.email) contact.push("Email: " + stripTags(settings.email).slice(0, 120));
+    if (settings.phone) contact.push("Phone: " + stripTags(settings.phone).slice(0, 40));
+    const waDigits = digitsOnly(settings.whatsapp);
+    if (waDigits) contact.push("WhatsApp: https://wa.me/" + waDigits);
+    if (contact.length) parts.push("Guest contact / booking:\n" + contact.join("\n"));
 
     if (!parts.length) return "";
     return (
@@ -165,6 +229,13 @@ function sanitizeMessages(input) {
   return msgs;
 }
 
+function toOpenAIInput(messages) {
+  return messages.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
+}
+
 /* ---------- handlers ---------- */
 
 export async function onRequestOptions(context) {
@@ -175,18 +246,7 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   const cors = corsHeaders(request, env);
 
-  if (!env.ANTHROPIC_API_KEY) {
-    return json({ error: "Concierge is not configured." }, 500, cors);
-  }
-
-  // Rate limit
-  const ip = request.headers.get("CF-Connecting-IP") || "";
-  const limit = parseInt(env.CONCIERGE_RATE_LIMIT_PER_MIN || "15", 10);
-  if (!(await withinRateLimit(env, ip, limit))) {
-    return json({ error: "Too many messages — please wait a moment." }, 429, cors);
-  }
-
-  // Parse + validate
+  // Parse + validate first so bad requests do not consume the rate budget.
   let payload;
   try {
     payload = await request.json();
@@ -197,6 +257,18 @@ export async function onRequestPost(context) {
   if (!messages) {
     return json({ error: "No valid message to answer." }, 400, cors);
   }
+
+  if (!env.OPENAI_API_KEY) {
+    console.error("Concierge misconfigured: missing OPENAI_API_KEY");
+    return json({ error: "The concierge is unavailable right now." }, 500, cors);
+  }
+
+  // Rate limit
+  const ip = request.headers.get("CF-Connecting-IP") || "";
+  const limit = parseInt(env.CONCIERGE_RATE_LIMIT_PER_MIN || "15", 10);
+  if (!(await withinRateLimit(env, ip, limit))) {
+    return json({ error: "Too many messages — please wait a moment." }, 429, cors);
+  }
   const sessionId =
     typeof payload?.sessionId === "string" && payload.sessionId.length <= 64
       ? payload.sessionId
@@ -204,38 +276,42 @@ export async function onRequestPost(context) {
   const visitorId =
     typeof payload?.visitorId === "string" ? payload.visitorId.slice(0, 64) : null;
 
-  const system = KNOWLEDGE_BASE + (await liveContext(env));
+  const instructions = KNOWLEDGE_BASE + (await liveContext(env));
 
-  // Call Anthropic
   let reply;
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: env.ANTHROPIC_MODEL || DEFAULT_MODEL,
-        max_tokens: MAX_TOKENS,
-        system,
-        messages,
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), PROVIDER_TIMEOUT_MS);
+    let res;
+    try {
+      res = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: "Bearer " + env.OPENAI_API_KEY,
+        },
+        body: JSON.stringify({
+          model: resolveModel(env),
+          instructions,
+          input: toOpenAIInput(messages),
+          max_output_tokens: MAX_TOKENS,
+          reasoning: { effort: "low" },
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
     if (!res.ok) {
-      const detail = await res.text();
-      console.error("Anthropic error", res.status, detail);
+      console.error("OpenAI concierge error", res.status);
       return json({ error: "The concierge is unavailable right now." }, 502, cors);
     }
     const data = await res.json();
-    reply = (data.content || [])
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
-      .join("\n")
-      .trim();
+    reply = extractResponseText(data);
   } catch (e) {
-    console.error("Concierge fetch failed", e);
+    const timedOut = e && (e.name === "AbortError" || e.name === "TimeoutError");
+    console.error(timedOut ? "OpenAI concierge timeout" : "OpenAI concierge fetch failed");
     return json({ error: "The concierge is unavailable right now." }, 502, cors);
   }
 
