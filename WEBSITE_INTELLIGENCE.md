@@ -8,9 +8,9 @@ Use it for ownership handoff, deployment, troubleshooting, and future updates.
 ## 1) Project Snapshot
 
 - **Primary production Pages project:** `villacoco`
-- **Primary preview domain:** `https://villacoco.pages.dev`
+- **Primary site domain:** `https://villacoco.zeli.lat`
 - **Tech stack:** static HTML/CSS/JS + Cloudflare Pages Functions + Cloudflare KV
-- **Content management:** custom admin panel at `/admin`
+- **Content management:** custom admin panel at `/panel`
 - **Live content storage:** KV key `cms_current`
 - **Analytics storage:** KV key `cms_analytics`
 
@@ -19,11 +19,11 @@ Use it for ownership handoff, deployment, troubleshooting, and future updates.
 ## 2) Repo Structure
 
 - `index.html` -> main website frontend
-- `admin/index.html` -> CMS admin panel
+- `panel/index.html` -> CMS admin panel
 - `functions/api/cms.js` -> CMS API (auth, save, revert, analytics, R2 uploads)
 - `functions/media/[[key]].js` -> public R2 media delivery (`GET`/`HEAD` `/media/<key>`)
 - `functions/[[path]].js` -> server-side SEO HTML injection for homepage
-- `_redirects` -> admin routing
+- `_redirects` -> `/panel` routing (`/admin` returns 404)
 - `_routes.json` -> Pages Functions route scope
 - `OWNER_MEDIA_GUIDE.md` -> owner-facing media standards
 - `CLOUDFLARE_BACKEND_SETUP.md` -> Cloudflare setup instructions
@@ -38,9 +38,10 @@ In Pages project (`villacoco`) -> Settings:
 - `ADMIN_PASSWORD` = admin login password
 - `OPENAI_API_KEY` = Coco concierge (server-side only)
 - `OPENAI_MODEL` = optional Coco model override (default `gpt-5.6-luna`)
+- `PUBLIC_SITE_URL` = `https://villacoco.zeli.lat` (Coco retreat links)
 - `ALLOWED_ORIGINS` = allowed origins (comma-separated), for example:
-  - `https://villacoco.pages.dev`
-  - plus custom domain(s) once launched
+  - `https://villacoco.zeli.lat`
+  - plus other domains if needed
 
 ### Bindings
 - KV binding:
@@ -94,7 +95,7 @@ Main actions:
 ### Verify SEO is truly live
 1. Update SEO in admin + save.
 2. Open:
-   - `view-source:https://villacoco.pages.dev/`
+   - `view-source:https://villacoco.zeli.lat/`
 3. Confirm `<title>`, description, OG tags match admin values.
 
 If source still shows old values, check:
@@ -202,7 +203,7 @@ Key policy:
 ## 12) Operational Checklist Before Sharing With Owner
 
 - [ ] Homepage loads on target URL
-- [ ] `/admin` login works
+- [ ] `/panel` login works
 - [ ] Save updates reflect on live site
 - [ ] SEO source tags reflect admin values
 - [ ] Analytics page shows real events

@@ -21,8 +21,8 @@ Use this as the canonical handoff/reference doc.
 ## 2) Current Production Identity
 
 - **Primary Pages project:** `villacoco`
-- **Current site URL:** `https://villacoco.pages.dev`
-- **Admin URL:** `https://villacoco.pages.dev/admin`
+- **Current site URL:** `https://villacoco.zeli.lat`
+- **Content panel URL:** `https://villacoco.zeli.lat/panel`
 - **Stack:** static frontend + Cloudflare Pages Functions + Cloudflare KV
 
 Avoid using multiple Pages projects for the same site unless intentional.
@@ -44,10 +44,10 @@ Avoid using multiple Pages projects for the same site unless intentional.
 ## 4) Repository Map
 
 - `index.html` -> public website
-- `admin/index.html` -> content admin panel
+- `panel/index.html` -> content admin panel
 - `functions/api/cms.js` -> CMS API + analytics API
 - `functions/[[path]].js` -> server-side homepage SEO injection
-- `_redirects` -> admin routing behavior
+- `_redirects` -> `/panel` routing (`/admin` is not routed and returns 404)
 - `_routes.json` -> Pages Functions route scope
 - `OWNER_MEDIA_GUIDE.md` -> image standards for owner
 - `LAUNCH_DAY_SOP.md` -> launch sequence
@@ -90,9 +90,10 @@ In Pages project `villacoco`:
 - `ADMIN_PASSWORD`
 - `OPENAI_API_KEY` (Coco concierge; server-side only)
 - `OPENAI_MODEL` (optional; default `gpt-5.6-luna`)
+- `PUBLIC_SITE_URL` = `https://villacoco.zeli.lat` (Coco retreat links)
 - `ALLOWED_ORIGINS` (recommended), e.g.:
-  - `https://villacoco.pages.dev`
-  - add final domain(s) at launch
+  - `https://villacoco.zeli.lat`
+  - add other domains if needed
 
 ### Bindings
 - KV binding:
@@ -129,7 +130,7 @@ Bots/scrapers (Google, social previews) read HTML source; server-side injection 
 
 ### Verification command
 ```bash
-curl -s "https://villacoco.pages.dev/" | grep -n "meta-title\|og:title\|twitter:title\|canonical"
+curl -s "https://villacoco.zeli.lat/" | grep -n "meta-title\|og:title\|twitter:title\|canonical"
 ```
 
 If updated values are missing in source:
@@ -199,7 +200,7 @@ Use `LAUNCH_DAY_SOP.md` as step-by-step script.
 
 ## 13) Final Pre-Share QA (Owner Review)
 
-1. Site and admin load (`/` and `/admin`)
+1. Site and content panel load (`/` and `/panel`)
 2. Save changes from admin updates live content
 3. SEO source tags reflect admin values
 4. Analytics counters update after real interactions

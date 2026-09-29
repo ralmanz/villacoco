@@ -25,7 +25,8 @@ In your Pages project settings, add:
 
 Optional:
 
-- `ALLOWED_ORIGINS` (comma-separated origins)
+- `PUBLIC_SITE_URL` — public site origin (e.g. `https://villacoco.zeli.lat`). Used by Coco for retreat links. Falls back to the request host if unset.
+- `ALLOWED_ORIGINS` — comma-separated browser origins allowed to call the CMS and concierge APIs (must include `https://villacoco.zeli.lat` for the live site)
 
 ### Coco concierge (OpenAI)
 
@@ -35,6 +36,14 @@ The public concierge at `/api/concierge` uses OpenAI server-side. Add:
 - **`OPENAI_MODEL`** — optional model override (default `gpt-5.6-luna`). Use this to switch Coco to another model later without a code change.
 
 If `OPENAI_API_KEY` is missing, guests see a generic unavailable message.
+
+### Public site URL (canonical / sitemap / Coco)
+
+- **`PUBLIC_SITE_URL`** — single source of truth for the site origin (no trailing slash), e.g. `https://villacoco.zeli.lat` interim or `https://villacocopanama.com` at cutover.
+- Used for homepage canonical, `og:url`, JSON-LD `url`, `/sitemap.xml`, `/robots.txt`, and Coco retreat links.
+- **`ALLOWED_ORIGINS`** must include every browser origin that calls `/api/*` (panel + public site), e.g. `https://villacoco.zeli.lat` or `https://villacocopanama.com`.
+
+Domain cutover = change these env vars + DNS only. See `LAUNCH_DAY_SOP.md`.
 
 ### Image uploads (Cloudflare R2)
 
@@ -67,9 +76,9 @@ Then:
 
 - `/api/cms` -> should return `{}` (or saved data JSON)
 
-### 4) Login behavior
+### 4) Content panel login
 
-Admin tries these endpoints automatically:
+The owner content panel lives at `/panel` (static `panel/index.html`). It tries these API endpoints automatically:
 
 - `/api/cms`
 - `/functions/api/cms`
