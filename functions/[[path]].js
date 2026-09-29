@@ -1,19 +1,20 @@
 /**
  * Server-side HTML SEO injection for homepage.
  * Ensures crawlers/social scrapers see current SEO values from KV.
+ * Canonical, og:url, and JSON-LD url use env.PUBLIC_SITE_URL.
  */
+
+import { absolutePublicUrl, isInterimHost, publicSiteUrl } from './lib/site-url.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const method = request.method.toUpperCase();
 
-  // API routes are handled by dedicated API function files.
   if (url.pathname.startsWith('/api/')) {
     return env.ASSETS.fetch(request);
   }
 
-  // Only mutate homepage HTML on GET.
   if (method !== 'GET') {
     return env.ASSETS.fetch(request);
   }
@@ -22,25 +23,34 @@ export async function onRequest(context) {
     return env.ASSETS.fetch(request);
   }
 
-  // Fetch the original request to avoid redirect loops between "/" and "/index.html".
   const assetResponse = await env.ASSETS.fetch(request);
   if (!assetResponse.ok) return assetResponse;
 
   let html = await assetResponse.text();
+  const siteUrl = publicSiteUrl(env, request);
+
   try {
     if (env.VILLA_COCO_CMS) {
       const raw = await env.VILLA_COCO_CMS.get('cms_current');
       if (raw) {
         const cms = JSON.parse(raw);
-        html = injectSeo(html, cms?.seo || {}, request.url);
+        html = injectSeo(html, cms?.seo || {}, siteUrl);
+      } else {
+        html = injectSiteUrls(html, siteUrl);
       }
+    } else {
+      html = injectSiteUrls(html, siteUrl);
     }
-  } catch (e) {
-    // Fall through to original HTML if KV read/parse fails.
+  } catch (_) {
+    html = injectSiteUrls(html, siteUrl);
   }
 
   const headers = new Headers(assetResponse.headers);
   headers.set('Content-Type', 'text/html; charset=utf-8');
+  if (isInterimHost(url.hostname)) {
+    headers.set('X-Robots-Tag', 'noindex');
+  }
+
   return new Response(html, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
@@ -48,16 +58,12 @@ export async function onRequest(context) {
   });
 }
 
-function injectSeo(html, seo, requestUrl) {
+function injectSeo(html, seo, siteUrl) {
   const title = asString(seo.title);
   const description = asString(seo.description);
   const keywords = asString(seo.keywords);
-  const ogImage = asString(seo.ogImage);
-
-  const canonical = new URL(requestUrl);
-  canonical.hash = '';
-  canonical.search = '';
-  const canonicalUrl = canonical.toString();
+  const ogImage = absolutePublicUrl(siteUrl, asString(seo.ogImage));
+  const canonicalUrl = `${siteUrl}/`;
 
   if (title) {
     html = html.replace(
@@ -107,6 +113,12 @@ function injectSeo(html, seo, requestUrl) {
     );
   }
 
+  html = injectSiteUrls(html, siteUrl);
+  return html;
+}
+
+function injectSiteUrls(html, siteUrl) {
+  const canonicalUrl = `${siteUrl}/`;
   html = html.replace(
     /(<link rel="canonical" href=")[^"]*("\s*\/?>)/,
     `$1${escapeAttr(canonicalUrl)}$2`
@@ -115,7 +127,10 @@ function injectSeo(html, seo, requestUrl) {
     /(<meta property="og:url" content=")[^"]*("\s*\/?>)/,
     `$1${escapeAttr(canonicalUrl)}$2`
   );
-
+  html = html.replace(
+    /(<script type="application\/ld\+json" id="schema-org">[\s\S]*?"url"\s*:\s*")[^"]*(")/,
+    `$1${escapeAttr(siteUrl)}$2`
+  );
   return html;
 }
 
@@ -137,4 +152,3 @@ function escapeAttr(value) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
-

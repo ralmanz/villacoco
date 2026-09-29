@@ -1,0 +1,8 @@
+# Cloudflare Pages _headers is path-based only (not hostname).
+# Interim-host noindex is enforced by functions/_middleware.js on routed paths.
+# In the Cloudflare dashboard, add Transform Rules (Response Header Modification)
+# for these hostnames → Set X-Robots-Tag = noindex:
+#   - villacoco.pages.dev
+#   - *.villacoco.pages.dev
+#   - villacoco.zeli.lat
+# See LAUNCH_DAY_SOP.md for the full cutover checklist.

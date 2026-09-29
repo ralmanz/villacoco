@@ -10,12 +10,15 @@
  *   - env.OPENAI_API_KEY       (Pages secret)
  *   - env.VILLA_COCO_CMS       (KV binding; live facts + rate limit + logs)
  * Optional:
+ *   - env.PUBLIC_SITE_URL              (public site origin, e.g. https://villacoco.zeli.lat)
  *   - env.OPENAI_MODEL                 (default gpt-5.6-luna)
  *   - env.ALLOWED_ORIGINS              (comma-separated; mirrors cms.js)
  *   - env.CONCIERGE_RATE_LIMIT_PER_MIN (default 15, per IP)
  *   - env.CONCIERGE_LOG                ("false" to disable conversation logging)
  *   - env.CONCIERGE_LOG_TTL_DAYS       (default 60; auto-expires logged chats)
  */
+
+import { publicSiteUrl } from '../lib/site-url.js';
 
 const DEFAULT_MODEL = "gpt-5.6-luna";
 const MAX_TOKENS = 600;
@@ -41,8 +44,6 @@ CONFIRMED FACTS:
 - Current rooms, restaurant hours, packages, and contact details may appear in the LIVE DETAILS section. Prefer those when present.
 
 BOOKING INQUIRIES: You cannot confirm reservations or take payments yourself. When a guest wants to book or asks about availability for specific dates: use the official booking link from LIVE DETAILS if one is provided; also collect their desired dates, number of guests, and a contact (name plus email or WhatsApp). Warmly confirm you've noted the request and that the host will follow up to confirm and arrange payment. Never say a booking is confirmed.
-
-RETREATS: Villa Coco sometimes hosts yoga and wellness retreats. If a guest is interested, point them to https://villacoco.pages.dev/retreat/ or to WhatsApp from LIVE DETAILS. Do not quote retreat dates, prices, capacity, or facilitator names unless those exact details appear in LIVE DETAILS. If they do not, say you do not have those details and offer to connect the guest with the host.
 
 UNKNOWN INFORMATION:
 - If a guest asks something that is not in these instructions or LIVE DETAILS, say you do not have that answer and offer to pass the question to the host using the WhatsApp number or email from LIVE DETAILS.
@@ -90,6 +91,16 @@ function stripTags(s) {
 function resolveModel(env) {
   const configured = typeof env.OPENAI_MODEL === "string" ? env.OPENAI_MODEL.trim() : "";
   return configured || DEFAULT_MODEL;
+}
+
+function buildKnowledgeBase(env, request) {
+  const siteUrl = publicSiteUrl(env, request);
+  return (
+    KNOWLEDGE_BASE +
+    "\n\nRETREATS: Villa Coco sometimes hosts yoga and wellness retreats. If a guest is interested, point them to " +
+    siteUrl +
+    "/retreat/ or to WhatsApp from LIVE DETAILS. Do not quote retreat dates, prices, capacity, or facilitator names unless those exact details appear in LIVE DETAILS. If they do not, say you do not have those details and offer to connect the guest with the host."
+  );
 }
 
 function extractResponseText(data) {
@@ -276,7 +287,7 @@ export async function onRequestPost(context) {
   const visitorId =
     typeof payload?.visitorId === "string" ? payload.visitorId.slice(0, 64) : null;
 
-  const instructions = KNOWLEDGE_BASE + (await liveContext(env));
+  const instructions = buildKnowledgeBase(env, request) + (await liveContext(env));
 
   let reply;
   try {

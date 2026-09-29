@@ -1407,8 +1407,9 @@ function applyCMS(cms){
     }
     if(s.keywords) document.getElementById('meta-keywords').content = s.keywords;
     if(s.ogImage){
-      const oi = document.getElementById('og-image'); if(oi) oi.content = s.ogImage;
-      const ti = document.getElementById('tw-image'); if(ti) ti.content = s.ogImage;
+      const og = s.ogImage.startsWith('/') ? (window.location.origin + s.ogImage) : s.ogImage;
+      const oi = document.getElementById('og-image'); if(oi) oi.content = og;
+      const ti = document.getElementById('tw-image'); if(ti) ti.content = og;
     }
   }
 
