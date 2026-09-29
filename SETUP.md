@@ -2,7 +2,7 @@
 
 ## Files in this package
 - `index.html` — the live website
-- `admin.html` — the content management panel
+- `panel/index.html` — the content management panel
 - `functions/api/cms.js` — the API that connects admin → KV storage
 - `_redirects` — URL routing rules
 
@@ -50,7 +50,7 @@ Go to cloudflare.com and create a free account.
 
 ## How editing works (for Olivia & the front desk)
 
-1. Go to `villacocopanama.com/admin`
+1. Go to `https://villacoco.zeli.lat/panel`
 2. Enter the admin password
 3. Navigate to any section in the left sidebar
 4. Edit any field — text, photos, hours, prices

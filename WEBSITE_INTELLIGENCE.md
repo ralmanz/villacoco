@@ -8,9 +8,9 @@ Use it for ownership handoff, deployment, troubleshooting, and future updates.
 ## 1) Project Snapshot
 
 - **Primary production Pages project:** `villacoco`
-- **Primary preview domain:** `https://villacoco.pages.dev`
+- **Primary site domain:** `https://villacoco.zeli.lat`
 - **Tech stack:** static HTML/CSS/JS + Cloudflare Pages Functions + Cloudflare KV
-- **Content management:** custom admin panel at `/admin`
+- **Content management:** custom admin panel at `/panel`
 - **Live content storage:** KV key `cms_current`
 - **Analytics storage:** KV key `cms_analytics`
 
@@ -19,10 +19,11 @@ Use it for ownership handoff, deployment, troubleshooting, and future updates.
 ## 2) Repo Structure
 
 - `index.html` -> main website frontend
-- `admin/index.html` -> CMS admin panel
-- `functions/api/cms.js` -> CMS API (auth, save, revert, analytics)
+- `panel/index.html` -> CMS admin panel
+- `functions/api/cms.js` -> CMS API (auth, save, revert, analytics, R2 uploads)
+- `functions/media/[[key]].js` -> public R2 media delivery (`GET`/`HEAD` `/media/<key>`)
 - `functions/[[path]].js` -> server-side SEO HTML injection for homepage
-- `_redirects` -> admin routing
+- `_redirects` -> `/panel` routing (`/admin` returns 404)
 - `_routes.json` -> Pages Functions route scope
 - `OWNER_MEDIA_GUIDE.md` -> owner-facing media standards
 - `CLOUDFLARE_BACKEND_SETUP.md` -> Cloudflare setup instructions
@@ -35,14 +36,20 @@ In Pages project (`villacoco`) -> Settings:
 
 ### Environment variables
 - `ADMIN_PASSWORD` = admin login password
+- `OPENAI_API_KEY` = Coco concierge (server-side only)
+- `OPENAI_MODEL` = optional Coco model override (default `gpt-5.6-luna`)
+- `PUBLIC_SITE_URL` = `https://villacoco.zeli.lat` (Coco retreat links)
 - `ALLOWED_ORIGINS` = allowed origins (comma-separated), for example:
-  - `https://villacoco.pages.dev`
-  - plus custom domain(s) once launched
+  - `https://villacoco.zeli.lat`
+  - plus other domains if needed
 
 ### Bindings
 - KV binding:
   - **Variable name:** `VILLA_COCO_CMS`
   - **Value:** your KV namespace
+- R2 binding:
+  - **Variable name:** `VILLA_COCO_MEDIA`
+  - **Value:** the Villa Coco media bucket
 
 ---
 
@@ -88,7 +95,7 @@ Main actions:
 ### Verify SEO is truly live
 1. Update SEO in admin + save.
 2. Open:
-   - `view-source:https://villacoco.pages.dev/`
+   - `view-source:https://villacoco.zeli.lat/`
 3. Confirm `<title>`, description, OG tags match admin values.
 
 If source still shows old values, check:
@@ -146,8 +153,10 @@ Special logic:
 See full guide: `OWNER_MEDIA_GUIDE.md`
 
 Key policy:
-- Use public direct file URLs (`https://...`), not preview/share pages.
-- Recommended hosting: Cloudflare Images or Cloudflare R2 public URLs.
+- Prefer **Upload image** in admin. New files are stored as `/media/<key>` (one R2 original).
+- Existing public `https://...` URLs remain valid, including previously saved remote or Cloudflare Images URLs.
+- Do not store size-specific transformation URLs. Later `/cdn-cgi/image/...` wrappers can use the same `/media/<key>` source.
+- Avoid preview/share pages (Dropbox/Drive).
 
 ---
 
@@ -194,7 +203,7 @@ Key policy:
 ## 12) Operational Checklist Before Sharing With Owner
 
 - [ ] Homepage loads on target URL
-- [ ] `/admin` login works
+- [ ] `/panel` login works
 - [ ] Save updates reflect on live site
 - [ ] SEO source tags reflect admin values
 - [ ] Analytics page shows real events
@@ -207,7 +216,8 @@ Key policy:
 ## 13) Recommended Next Improvements
 
 - Add GA4 and Search Console for enterprise-grade SEO/traffic reporting
-- Add image upload helper (direct to Cloudflare Images/R2) inside admin
+- Optionally wrap `/media/<key>` with Cloudflare image transformations for hero/cards/thumbnails (do not rewrite CMS URLs)
 - Add role-based admin access and audit trail
 - Add scheduled KV backups/export
+- Later: orphan R2 cleanup for replaced objects still kept for CMS history
 

@@ -1,127 +1,173 @@
-# Villa Coco Launch Day SOP (One Pager)
+# Villa Coco — Domain Cutover Checklist
 
-Use this checklist during official go-live.
+Production apex: **https://villacocopanama.com** (no www).  
+Interim host: **https://villacoco.zeli.lat** (noindex until cutover).
 
----
-
-## 0) Pre-Launch (15-30 min before)
-
-- Confirm latest code is deployed to Pages project: `villacoco`
-- Confirm Cloudflare bindings/env:
-  - `VILLA_COCO_CMS` (KV binding)
-  - `ADMIN_PASSWORD`
-  - `ALLOWED_ORIGINS` includes final domain(s)
-- Confirm admin login works at `/admin`
-- Confirm SEO values are finalized in admin
+Cutover requires **env var + DNS/dashboard changes only** — no code deploy for the domain switch.
 
 ---
 
-## 1) DNS Cutover (GoDaddy -> Cloudflare Pages)
+## A) Before cutover (interim — zeli.lat live)
 
-In Cloudflare Pages (`villacoco`) -> Custom domains:
-- Add `villacocopanama.com`
-- Add `www.villacocopanama.com`
+### Cloudflare Pages project `villacoco`
 
-In GoDaddy DNS, apply Cloudflare-provided records:
-- root (`@`) target
-- `www` CNAME target
+**Environment variables (Production + Preview):**
 
-Wait for propagation (usually minutes, can take longer).
+| Variable | Interim value | After cutover |
+|----------|---------------|---------------|
+| `PUBLIC_SITE_URL` | `https://villacoco.zeli.lat` | `https://villacocopanama.com` |
+| `ALLOWED_ORIGINS` | `https://villacoco.zeli.lat` | `https://villacocopanama.com,https://www.villacocopanama.com` |
+| `ADMIN_PASSWORD` | *(set)* | unchanged |
+| `OPENAI_API_KEY` | *(set)* | unchanged |
 
----
+**Bindings:** `VILLA_COCO_CMS` (KV), `VILLA_COCO_MEDIA` (R2).
 
-## 2) Immediate Post-Cutover Checks
+**Custom domains on Pages:** attach `villacoco.zeli.lat` (interim).
 
-Open the final domain (root + www):
-- Homepage loads
-- `/admin` loads
-- No redirect loop
+### Interim noindex (temporary hosts)
 
-API sanity:
-- `/api/cms?action=health` returns JSON
+Cloudflare Pages `_headers` is path-only. Use **Transform Rules** on the zone(s) that serve interim traffic:
 
----
+| When incoming requests match… | Then set response header… |
+|-------------------------------|---------------------------|
+| Hostname equals `villacoco.pages.dev` | `X-Robots-Tag` = `noindex` |
+| Hostname wildcard `*.villacoco.pages.dev` | `X-Robots-Tag` = `noindex` |
+| Hostname equals `villacoco.zeli.lat` | `X-Robots-Tag` = `noindex` |
 
-## 3) SEO Verification (Critical)
+Also covered in code: `functions/_middleware.js` on routed paths; `/panel` has `<meta name="robots" content="noindex, nofollow">`.
 
-Run:
-- `view-source:https://YOUR_FINAL_DOMAIN/`
+**Remove** the zeli.lat Transform Rule after cutover (production must be indexable).
 
-Verify in source:
-- `<title>` is correct
-- meta description is correct
-- `og:title`, `og:description`, `og:image` are correct
-- canonical uses final domain
-- `og:url` uses final domain
+### Smoke test (zeli.lat)
 
-Quick proof test:
-- change title in admin to a temporary unique value
-- save
-- check `view-source` again
-- restore final title
+- [ ] `https://villacoco.zeli.lat/` loads
+- [ ] `https://villacoco.zeli.lat/panel` login + save works
+- [ ] `view-source:` shows canonical = `https://villacoco.zeli.lat/` (matches `PUBLIC_SITE_URL`)
+- [ ] `/sitemap.xml` and `/robots.txt` use `PUBLIC_SITE_URL`
+- [ ] `/api/cms?action=health` returns JSON
+- [ ] Coco concierge responds on `/`
 
 ---
 
-## 4) Analytics Verification
+## B) Cloudflare zone prep (villacocopanama.com)
 
-From 2 devices (desktop + phone):
-- Visit homepage
-- Click a few links/buttons
+### 1) Zone + DNS records
 
-In admin -> Analytics -> Refresh:
-- views increase
-- unique visitors increase
-- device split updates
+- [ ] Add domain to Cloudflare (or confirm zone active)
+- [ ] Import/copy DNS from GoDaddy; verify **email records** (MX, SPF, DKIM, autodiscover, etc.)
+- [ ] Set **email-related records to DNS only (grey cloud)** — do not proxy mail through Cloudflare
+- [ ] Confirm web A/CNAME targets match Cloudflare Pages instructions before nameserver switch
 
----
+### 2) GoDaddy nameserver change
 
-## 5) Performance and UX Spot Check
+- [ ] Replace GoDaddy nameservers with Cloudflare-assigned nameservers
+- [ ] Wait for propagation (minutes to hours)
 
-- Hero, Wellness, Experiences, Food sections render correctly
-- Mobile menu order is correct
-- No unexpected section appears on mobile only
-- Key images load quickly and are not broken
+### 3) Attach domains in Pages
 
----
+Pages → `villacoco` → **Custom domains**:
 
-## 6) Search and Social Setup
+- [ ] `villacocopanama.com` (apex)
+- [ ] `www.villacocopanama.com`
 
-- Verify property in Google Search Console (final domain)
-- Request indexing for homepage
-- Submit sitemap (if present)
-- Test link preview in WhatsApp/Facebook/LinkedIn using final URL
+### 4) Redirect Rules (zone: villacocopanama.com)
 
----
+| Rule | Action |
+|------|--------|
+| Host equals `www.villacocopanama.com` | 301 redirect to `https://villacocopanama.com${uri}` |
+| Host equals `villacoco.zeli.lat` | 301 redirect to `https://villacocopanama.com${uri}` *(enable at cutover)* |
 
-## 7) Safety / Rollback Plan
-
-If critical issue appears:
-- Repoint DNS back to previous WordPress target (temporary rollback), or
-- Keep old WP available on subdomain and route traffic there while fixing
-
-Do not delete old WP immediately; keep it available for at least 1-2 weeks.
+Keep zeli.lat redirect in place until marketing materials are updated, then optional.
 
 ---
 
-## 8) Owner Handoff Items
+## C) Cutover moment (env only)
 
-Share:
-- production URL
-- admin URL
-- admin credentials (secure channel)
-- `OWNER_MEDIA_GUIDE.md`
-- `WEBSITE_INTELLIGENCE.md`
-- this SOP
+In Pages → Settings → Environment variables → **Production**:
+
+1. Set `PUBLIC_SITE_URL` = `https://villacocopanama.com`
+2. Set `ALLOWED_ORIGINS` = `https://villacocopanama.com,https://www.villacocopanama.com`
+3. Redeploy not required if vars are runtime-bound; trigger redeploy if your project caches env at build time
+
+Remove/disable:
+
+- [ ] Transform Rule: noindex on `villacoco.zeli.lat`
+- [ ] (Optional) zeli.lat → apex redirect once interim links expire
 
 ---
 
-## 9) Final Sign-Off Checklist
+## D) Post-cutover verification
 
-- [ ] Domain points to Cloudflare Pages
-- [ ] SSL valid on root + www
-- [ ] Admin save/publish works
-- [ ] SEO source tags match admin
-- [ ] Analytics tracking works
-- [ ] Mobile + desktop QA passed
-- [ ] Owner received handoff docs
+### DNS & SSL
 
+- [ ] `https://villacocopanama.com` loads (valid SSL)
+- [ ] `https://www.villacocopanama.com` 301s to apex
+- [ ] No redirect loops
+
+### SEO source (critical)
+
+```bash
+curl -s "https://villacocopanama.com/" | grep -E 'canonical|og:url|"url"'
+curl -s "https://villacocopanama.com/sitemap.xml"
+curl -s "https://villacocopanama.com/robots.txt"
+```
+
+Expect:
+
+- `<link rel="canonical" href="https://villacocopanama.com/">`
+- `<meta property="og:url" content="https://villacocopanama.com/">`
+- JSON-LD `"url": "https://villacocopanama.com"`
+- Sitemap + robots `Sitemap:` use `https://villacocopanama.com`
+
+Quick CMS proof: change SEO title in `/panel`, save, re-check view-source.
+
+### App smoke test
+
+- [ ] `/panel` login, save, revert
+- [ ] Image upload → `/media/...` URL
+- [ ] Analytics pageview increments
+- [ ] Retreat form + WhatsApp CTAs on `/retreat/`
+- [ ] Coco concierge works
+
+### Email (grey-cloud records)
+
+- [ ] Send test to `relax@villacocopanama.com` from external mailbox
+- [ ] Reply / receive path still works (MX not proxied)
+
+### Search & social
+
+- [ ] Google Search Console property on apex domain
+- [ ] Submit `https://villacocopanama.com/sitemap.xml`
+- [ ] WhatsApp / Facebook link preview shows correct OG image
+
+---
+
+## E) Rollback
+
+If critical failure after DNS switch:
+
+1. Repoint GoDaddy nameservers to previous DNS (temporary), **or**
+2. Revert `PUBLIC_SITE_URL` / `ALLOWED_ORIGINS` to zeli.lat values and route traffic back to interim domain
+
+Keep previous WordPress/host available 1–2 weeks; do not delete until stable.
+
+---
+
+## F) Owner handoff
+
+Share securely:
+
+- Production URL: `https://villacocopanama.com`
+- Content panel: `https://villacocopanama.com/panel`
+- `OWNER_MEDIA_GUIDE.md`, `WEBSITE_INTELLIGENCE.md`, `CLOUDFLARE_BACKEND_SETUP.md`
+
+---
+
+## G) Sign-off
+
+- [ ] Apex live on Cloudflare Pages with correct env vars
+- [ ] www → apex redirect active
+- [ ] Email DNS intact (grey cloud)
+- [ ] Canonical / sitemap / robots use `PUBLIC_SITE_URL`
+- [ ] Panel publish + media upload work
+- [ ] Interim hosts noindex (or redirected) as intended

@@ -21,8 +21,8 @@ Use this as the canonical handoff/reference doc.
 ## 2) Current Production Identity
 
 - **Primary Pages project:** `villacoco`
-- **Current site URL:** `https://villacoco.pages.dev`
-- **Admin URL:** `https://villacoco.pages.dev/admin`
+- **Current site URL:** `https://villacoco.zeli.lat`
+- **Content panel URL:** `https://villacoco.zeli.lat/panel`
 - **Stack:** static frontend + Cloudflare Pages Functions + Cloudflare KV
 
 Avoid using multiple Pages projects for the same site unless intentional.
@@ -44,10 +44,10 @@ Avoid using multiple Pages projects for the same site unless intentional.
 ## 4) Repository Map
 
 - `index.html` -> public website
-- `admin/index.html` -> content admin panel
+- `panel/index.html` -> content admin panel
 - `functions/api/cms.js` -> CMS API + analytics API
 - `functions/[[path]].js` -> server-side homepage SEO injection
-- `_redirects` -> admin routing behavior
+- `_redirects` -> `/panel` routing (`/admin` is not routed and returns 404)
 - `_routes.json` -> Pages Functions route scope
 - `OWNER_MEDIA_GUIDE.md` -> image standards for owner
 - `LAUNCH_DAY_SOP.md` -> launch sequence
@@ -88,14 +88,20 @@ In Pages project `villacoco`:
 
 ### Variables
 - `ADMIN_PASSWORD`
+- `OPENAI_API_KEY` (Coco concierge; server-side only)
+- `OPENAI_MODEL` (optional; default `gpt-5.6-luna`)
+- `PUBLIC_SITE_URL` = `https://villacoco.zeli.lat` (Coco retreat links)
 - `ALLOWED_ORIGINS` (recommended), e.g.:
-  - `https://villacoco.pages.dev`
-  - add final domain(s) at launch
+  - `https://villacoco.zeli.lat`
+  - add other domains if needed
 
 ### Bindings
 - KV binding:
   - variable: `VILLA_COCO_CMS`
   - value: the Villa Coco KV namespace
+- R2 binding:
+  - variable: `VILLA_COCO_MEDIA`
+  - value: the Villa Coco media bucket
 
 ---
 
@@ -124,7 +130,7 @@ Bots/scrapers (Google, social previews) read HTML source; server-side injection 
 
 ### Verification command
 ```bash
-curl -s "https://villacoco.pages.dev/" | grep -n "meta-title\|og:title\|twitter:title\|canonical"
+curl -s "https://villacoco.zeli.lat/" | grep -n "meta-title\|og:title\|twitter:title\|canonical"
 ```
 
 If updated values are missing in source:
@@ -161,14 +167,17 @@ Note: lightweight first-party analytics, not GA4-equivalent attribution.
 ## 11) Media Policy (Owner Content)
 
 Accepted URLs:
-- public direct `https://...` file URLs
+- new admin uploads: canonical `/media/<key>` from the `VILLA_COCO_MEDIA` R2 bucket
+- existing public `https://...` file URLs (including previously saved remote or Cloudflare Images URLs)
 
 Avoid:
 - Dropbox/Drive preview links
 - private/authenticated URLs
+- storing size-specific transformation URLs in CMS
 
 Recommended hosting:
-- Cloudflare Images or Cloudflare R2 public URLs
+- Admin **Upload image** → R2 original → `/media/<key>`
+- Optional later delivery wrappers such as `/cdn-cgi/image/width=1600,quality=80/media/<key>` without rewriting CMS content
 
 Reference standards:
 - see `OWNER_MEDIA_GUIDE.md`
@@ -191,7 +200,7 @@ Use `LAUNCH_DAY_SOP.md` as step-by-step script.
 
 ## 13) Final Pre-Share QA (Owner Review)
 
-1. Site and admin load (`/` and `/admin`)
+1. Site and content panel load (`/` and `/panel`)
 2. Save changes from admin updates live content
 3. SEO source tags reflect admin values
 4. Analytics counters update after real interactions
@@ -232,9 +241,10 @@ Use `LAUNCH_DAY_SOP.md` as step-by-step script.
 ## 16) Recommended Next Improvements
 
 - Add GA4 + Search Console integration
-- Add built-in media uploader to Cloudflare Images/R2
+- Optionally wrap `/media/<key>` with Cloudflare image transformations (keep one R2 original)
 - Add admin audit trail/version history for content edits
 - Add automated backup/export of KV content
+- Later: orphan R2 cleanup for replaced objects kept for CMS history
 
 ---
 

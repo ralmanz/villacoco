@@ -14,14 +14,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
 
 <!-- ============ META PIXEL ============
-     Replace PIXEL_ID with your Meta Pixel ID (Events Manager). Page works without it. -->
+     Set META_PIXEL_ID below. Page works without a real pixel ID. -->
 <script>
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-  document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  try { fbq('init', 'PIXEL_ID'); fbq('track', 'PageView'); } catch (e) {}
+  var META_PIXEL_ID = "PIXEL_ID";
+  var pixelReady = META_PIXEL_ID && META_PIXEL_ID !== "PIXEL_ID";
+  if (pixelReady) {
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    try { fbq('init', META_PIXEL_ID); fbq('track', 'PageView'); } catch (e) {}
+  }
 </script>
 
 <style>
@@ -308,7 +312,7 @@
 <script>
 (function(){
   /* ---- CONFIG: replace these two ---- */
-  var WHATSAPP_NUMBER = "507XXXXXXXX";   // digits only, with country code (507 = Panama)
+  var WHATSAPP_NUMBER = "50768583330";
   var WHATSAPP_MSG = "Hi! I'm interested in the yoga & wellness retreat at Villa Coco.";
   /* ----------------------------------- */
 
@@ -323,7 +327,7 @@
   var waHref = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(waText);
   document.querySelectorAll("[data-wa]").forEach(function(a){
     a.href = waHref;
-    a.addEventListener("click", function(){ try { fbq('track','Contact'); } catch(e){} });
+    a.addEventListener("click", function(){ if(pixelReady){ try { fbq('track','Contact'); } catch(e){} } });
   });
 
   if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
@@ -349,7 +353,7 @@
     var btn = form.querySelector("button[type=submit]");
     btn.disabled = true; btn.textContent = "Sending…";
     try{
-      await fetch("/api/retreat-lead", {
+      var res = await fetch("/api/retreat-lead", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
           name: form.name.value.trim(), email: form.email.value.trim(),
@@ -357,8 +361,13 @@
           utm: utm, page: "retreat"
         })
       });
+      if(!res.ok){
+        var err = {};
+        try { err = await res.json(); } catch(e){}
+        throw new Error(err.error || "Request failed");
+      }
       form.style.display = "none"; success.style.display = "block";
-      try { fbq('track','Lead'); } catch(e){}
+      if(pixelReady){ try { fbq('track','Lead'); } catch(e){} }
     }catch(err){
       btn.disabled = false; btn.textContent = "Request your spot";
       alert("Something went wrong sending that. Please message us on WhatsApp instead.");
