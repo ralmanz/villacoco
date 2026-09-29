@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Villa Coco — Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
@@ -1870,6 +1871,23 @@ async function handleGalleryImageUpload(index, fileInput){
   await handleImageUpload('gal-url-'+index, 'gal-prev-'+index, fileInput);
 }
 
+function relSitePath(value){
+  return VillaCocoCMS.toRelativeSitePath(value);
+}
+
+function normalizeSiteMediaPaths(payload){
+  if(!payload || typeof payload !== 'object') return;
+  if(payload.seo?.ogImage) payload.seo.ogImage = relSitePath(payload.seo.ogImage);
+  if(payload.hero?.img) payload.hero.img = relSitePath(payload.hero.img);
+  if(payload.story?.img) payload.story.img = relSitePath(payload.story.img);
+  if(payload.food?.img) payload.food.img = relSitePath(payload.food.img);
+  if(payload.pool?.img) payload.pool.img = relSitePath(payload.pool.img);
+  if(payload.cta?.img) payload.cta.img = relSitePath(payload.cta.img);
+  if(Array.isArray(payload.rooms)) payload.rooms.forEach(r=>{ if(r?.img) r.img = relSitePath(r.img); });
+  if(Array.isArray(payload.experiences)) payload.experiences.forEach(e=>{ if(e?.img) e.img = relSitePath(e.img); });
+  if(Array.isArray(payload.gallery)) payload.gallery.forEach(g=>{ if(g?.url) g.url = relSitePath(g.url); });
+}
+
 function collectAll(){
   data.settings = VillaCocoCMS.mergeSettings({
     bookingUrl: g('set-booking-url'),
@@ -1994,6 +2012,7 @@ function collectAll(){
       body: document.getElementById(`inq-body-${i}`)?.value||''
     }))
   };
+  normalizeSiteMediaPaths(data);
 }
 
 /* ═══════════════════════════════════════

@@ -1,11 +1,9 @@
 /**
  * Villa Coco CMS — shared settings, themes, and helpers
- * Loaded by index.html and admin/index.html
+ * Loaded by index.html and panel/index.html
  */
 (function (global) {
   'use strict';
-
-  var PRODUCTION_DOMAIN = 'https://villacocopanama.com';
 
   var DEFAULT_SETTINGS = {
     bookingUrl: 'https://www.simplebooking.it/ibe2/hotel/5068?lang=EN&cur=USD',
@@ -175,8 +173,32 @@
     return (global.location.search || '').indexOf('dev=1') !== -1;
   }
 
+  function siteOriginsForNormalize() {
+    var origins = [];
+    if (global.location && global.location.origin) origins.push(global.location.origin);
+    origins.push('https://villacoco.zeli.lat', 'https://villacocopanama.com', 'https://www.villacocopanama.com');
+    origins.push('https://villacoco.pages.dev');
+    return origins.filter(function (v, i, a) { return v && a.indexOf(v) === i; });
+  }
+
+  function toRelativeSitePath(value) {
+    var raw = String(value || '').trim();
+    if (!raw || raw.startsWith('/') || !/^https?:\/\//i.test(raw)) return raw;
+    try {
+      var parsed = new URL(raw);
+      var path = parsed.pathname + parsed.search + parsed.hash;
+      var origins = siteOriginsForNormalize();
+      for (var i = 0; i < origins.length; i++) {
+        var origin = origins[i];
+        if (raw === origin || raw.indexOf(origin + '/') === 0) {
+          return path.charAt(0) === '/' ? path : '/' + path;
+        }
+      }
+    } catch (e) {}
+    return raw;
+  }
+
   global.VillaCocoCMS = {
-    PRODUCTION_DOMAIN: PRODUCTION_DOMAIN,
     DEFAULT_SETTINGS: DEFAULT_SETTINGS,
     THEME_REGISTRY: THEME_REGISTRY,
     TOKEN_KEYS: TOKEN_KEYS,
@@ -188,5 +210,6 @@
     telUrl: telUrl,
     extractPhysicalAddress: extractPhysicalAddress,
     isDevHost: isDevHost,
+    toRelativeSitePath: toRelativeSitePath,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
