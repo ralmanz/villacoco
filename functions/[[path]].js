@@ -5,6 +5,7 @@
  */
 
 import { absolutePublicUrl, isInterimHost, publicSiteUrl } from './lib/site-url.js';
+import { getPublishedForRender, injectThemeIntoHtml } from './_lib/theme-store.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -45,8 +46,13 @@ export async function onRequest(context) {
     html = injectSiteUrls(html, siteUrl);
   }
 
+  try {
+    html = injectThemeIntoHtml(html, await getPublishedForRender(env.VILLA_COCO_CMS));
+  } catch (_) {}
+
   const headers = new Headers(assetResponse.headers);
   headers.set('Content-Type', 'text/html; charset=utf-8');
+  headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
   if (isInterimHost(url.hostname)) {
     headers.set('X-Robots-Tag', 'noindex');
   }

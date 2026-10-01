@@ -1,3 +1,5 @@
+import { handleThemeRequest } from '../_lib/theme-store.js';
+
 /**
  * Villa Coco CMS API
  * Cloudflare Pages Function
@@ -41,6 +43,12 @@ export async function onRequest(context) {
   if (method === 'OPTIONS') {
     return new Response(null, { status: 204, headers });
   }
+
+  const themeRes = await handleThemeRequest(request, {
+    kv: env.VILLA_COCO_CMS,
+    isAuthorized: (req) => isAuthorized(req, env),
+  });
+  if (themeRes) return themeRes;
 
   if (!env.ADMIN_PASSWORD) {
     return json({ error: 'Server missing ADMIN_PASSWORD' }, 500, headers);
