@@ -1178,17 +1178,36 @@ document.getElementById('mobile-menu-btn')?.addEventListener('click',()=>{
 document.getElementById('sidebar-overlay')?.addEventListener('click', closeMobileNav);
 
 let themeEditorMounted = false;
+let themeEditorMounting = false;
+
+function showThemeEditorLoadError(message){
+  const container = document.getElementById('page-themes');
+  if(!container) return;
+  const safe = String(message || 'Unknown error').replace(/</g, '&lt;');
+  container.innerHTML = '<div class="form-section" style="margin-top:0"><p style="color:var(--red);line-height:1.6;font-size:.85rem">The theme editor couldn\'t load: ' + safe + '. Refresh the page or contact Ronel.</p></div>';
+}
 
 function mountThemeEditorOnce(){
-  if(themeEditorMounted) return;
-  themeEditorMounted = true;
-  import('./theme-editor.js').then(({ mountThemeEditor, createThemeApi })=>{
-    mountThemeEditor(document.getElementById('page-themes'), {
-      api: createThemeApi({
-        headers: () => ({ 'X-Admin-Password': sessionPassword }),
-      }),
+  if(themeEditorMounted || themeEditorMounting) return;
+  const container = document.getElementById('page-themes');
+  if(!container) return;
+  themeEditorMounting = true;
+  import('./theme-editor.js')
+    .then(({ mountThemeEditor, createThemeApi })=>{
+      mountThemeEditor(container, {
+        api: createThemeApi({
+          headers: () => ({ 'X-Admin-Password': sessionPassword }),
+        }),
+      });
+      themeEditorMounted = true;
+    })
+    .catch((err)=>{
+      console.error('Theme editor failed to load:', err);
+      showThemeEditorLoadError(err?.message || String(err));
+    })
+    .finally(()=>{
+      themeEditorMounting = false;
     });
-  });
 }
 
 function setActivePage(pageId){
@@ -1220,6 +1239,10 @@ function openPageFromHash(){
   const pageId = (location.hash || '#dashboard').replace(/^#/, '');
   if(document.getElementById('page-' + pageId)) setActivePage(pageId);
 }
+
+window.addEventListener('hashchange', ()=>{
+  if(document.getElementById('app')?.style.display !== 'none') openPageFromHash();
+});
 
 /* ═══════════════════════════════════════
    STATUS

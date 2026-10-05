@@ -9,9 +9,16 @@ import { isInterimHost } from '../lib/site-url.js';
 export async function onRequest(context) {
   const { request, env } = context;
   const method = request.method.toUpperCase();
+  const pathname = new URL(request.url).pathname;
 
   if (method !== 'GET' && method !== 'HEAD') {
     return new Response('Method not allowed', { status: 405 });
+  }
+
+  // Static assets under /panel/ (ES modules, CSS, images) must not be rewritten
+  // to index.html — otherwise import('./theme-editor.js') receives HTML.
+  if (/\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith('.html')) {
+    return env.ASSETS.fetch(request);
   }
 
   const origin = new URL(request.url).origin;
